@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Meijssen</title>
+    </head>
+    <body>
+        <button id='foo'>Click the button</button>
+        <script>
+            var foo = document.getElementById('foo');
+            foo.onclick = function() {
+                foo.innerHTML = 'Hello';
+                window.setTimeout(function() {
+                    foo.innerHTML = 'bye!';
+                }, 3000);
+            };
+        </script>
+    </body>
+</html>
