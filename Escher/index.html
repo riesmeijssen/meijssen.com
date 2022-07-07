@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style.css">
+    <title>Escher!</title>
+</head>
+<body>
+    <aside class="aside-class">
+        <ul class="asideList">
+            <li><a id="reset-button" class="asideAnchor">Reset</a></li>
+            <li>Symmetry type: <select name="select" id="symmetry-select">
+                <option value="p1">P1</option>
+                <option value="p2">P2</option>
+                <option value="p3">P3</option>
+                <option value="p31m">P31M</option>
+                <option value="p4">P4</option>
+                <option value="pg">PG</option>
+                <option value="pm">PM</option>
+            </select></li>
+            <li>Primary Color:
+                <input type="color" value="#000000" id="primary-color">
+            </li>
+            <li>Secondary Color:
+                <input type="color" value="#ffffff" id="secondary-color">
+            </li>
+            <li>
+                <input type="range" min="1" max="60" value="3" step="1" class="asideAnchorSlider" id="drawing-size">
+                <output id="drawing-size-label"><output>
+            </li>
+            <li>
+                <input type="range" min="-180" max="180" value="0" step="5" class="asideAnchorSlider" id="global-rotation">
+                <output id="global-rotation-label"><output>
+            </li>
+            <li>
+                <input type="range" min="0" max="180" value="90" step="5" class="asideAnchorSlider" id="xy-angle">
+                <output id="xy-angle-label"></output>
+            </li>
+            <li>
+                <input type="range" min="0" max="400" value="200" step="10" class="asideAnchorSlider" id="x-length">
+                <output id="x-length-label"></output>
+            </li>
+            <li>
+                <input type="range" min="0" max="400" value="200" step="10" class="asideAnchorSlider" id="y-length">
+                <output id="y-length-label"></output>
+            </li>
+            <li>
+                <br>
+                Shortcuts:<br>
+                Space to open menu<br>
+                R to reset<br>
+                Left click to draw primary color<br>
+                Right click to draw secondary color
+                Scroll to change pen size
+            </li>
+        </ul>
+    </aside>
+    <section>
+        <input type="checkbox" id="myInput">
+        <label for="myInput">
+          <span class="bar top"></span>
+          <span class="bar middle"></span>
+          <span class="bar bottom"></span>
+        </label>
+        <div class="canvas-container">
+            <canvas id="canvas"></canvas>
+            <!-- <div class="settings-container">
+                <button id="reset-button">Reset</button>
+                <div id="global-rotation-label" class="text-container"></div>
+                <input type="range" min="-180" max="180" value="0" step="5" class="slider" id="global-rotation">
+            </div> -->
+        </div>
+    </section>
+    <script src="./labels.js"></script>
+    <script src="./logic.js"></script>
+    <script src="./canvas.js"></script>
+</body>
+</html>
