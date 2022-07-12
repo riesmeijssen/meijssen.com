@@ -15,10 +15,11 @@ body, html {
     background-image: url("../img/TBR_20211016_591.jpg");
     opacity: 1;
     /* Full height */
+    width: 100vw;
     height: 100%;
-  
+    
     /* Center and scale the image nicely */
-    background-position: center;
+    background-position: center; 
     background-repeat: repeat;
     background-size: cover;
   }
@@ -27,7 +28,44 @@ body, html {
     width: 250px;
     height: 100%;
     background-color: white;
-    opacity: 0.5;
+    background: rgb(204, 204, 204); /* Fallback for older browsers without RGBA-support */
+    background: rgba(204, 204, 204, 0.5);
 
     color: black;
+}
+.box:hover {
+  opacity: 1;
+}
+
+
+#rssBlock{
+  left:0px;
+  height: àuto;
+  position: sticky;
+  top:0px;
+  background: black;
+  width:100%;
+  overflow: hidden;
+  opacity: 100%;
+}
+
+.cnnContents {
+  width:100%;
+  margin:0 auto;
+  font-size: 30px;
+  white-space: nowrap;
+  font-family: 'Museo';
+  font-weight: 300;
+  color: white;
+}
+
+
+.scrollendetext {
+  display:inline-block;
+  /* Apply animation to this element */
+  animation: scrolling-left2 60s linear infinite;
+}
+@keyframes scrolling-left2 {
+  0% {transform: translateX(100vw)}
+  100% {transform: translateX(-100%)}
 }
