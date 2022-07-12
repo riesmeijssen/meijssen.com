@@ -1,0 +1,33 @@
+body, html {
+    height: 100%;
+  }
+
+.header {
+    padding: 5px;
+    text-align: center;
+    background: #2ada9f;
+    color: white;
+    font-size: 30px;
+}
+
+.bg {
+    /* The image used */
+    background-image: url("../img/TBR_20211016_591.jpg");
+    opacity: 1;
+    /* Full height */
+    height: 100%;
+  
+    /* Center and scale the image nicely */
+    background-position: center;
+    background-repeat: repeat;
+    background-size: cover;
+  }
+
+.box {
+    width: 250px;
+    height: 100%;
+    background-color: white;
+    opacity: 0.5;
+
+    color: black;
+}
