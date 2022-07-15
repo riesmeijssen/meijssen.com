@@ -59,13 +59,19 @@ body, html {
   color: white;
 }
 
+@keyframes scrolling-left {
+  0% {transform: translateX(100vw)}
+  100% {transform: translateX(-100%)}
+}
 
 .scrollendetext {
   display:inline-block;
   /* Apply animation to this element */
-  animation: scrolling-left2 60s linear infinite;
+  animation: scrolling-left 60s linear infinite;
 }
-@keyframes scrolling-left2 {
-  0% {transform: translateX(100vw)}
-  100% {transform: translateX(-100%)}
+
+.scrollendetext_kt {
+  display:inline-block;
+  /* Apply animation to this element */
+  animation: scrolling-left 10s linear infinite;
 }
