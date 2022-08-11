@@ -6,17 +6,84 @@
     <body>
         
         
-        <div style="width:100%; height:700px;" id="tree">
+        <div style="width:100%; height:;" id="tree">
 
         <script>
+            FamilyTree.templates.myTemplate = Object.assign({}, FamilyTree.templates.tommy);
+FamilyTree.templates.myTemplate.size = [30, 30];
+FamilyTree.templates.myTemplate.node =
+    '<rect x="0" y="0" rx="5" ry="5" height="30" width="30" fill="#4D4D4D" stroke-width="1" stroke="#aeaeae"></circle>';
+
+FamilyTree.templates.myTemplate.defs = ``;
+
+FamilyTree.templates.myTemplate.field_0 = '<text style="font-size: 12px;" fill="#ffffff" x="15" y="15" text-anchor="middle">{val}</text>';
+
+FamilyTree.templates.myTemplate.pointer =
+    '<g data-pointer="pointer" transform="matrix(0,0,0,0,100,100)">><g transform="matrix(0.3,0,0,0.3,-17,-17)">'
+    + '<polygon fill="rgb(255, 202, 40)" points="53.004,173.004 53.004,66.996 0,120" />'
+    + '<polygon fill="rgb(255, 202, 40)" points="186.996,66.996 186.996,173.004 240,120" />'
+    + '<polygon fill="rgb(255, 202, 40)" points="66.996,53.004 173.004,53.004 120,0" />'
+    + '<polygon fill="rgb(255, 202, 40)" points="120,240 173.004,186.996 66.996,186.996" />'
+    + '<circle fill="rgb(255, 202, 40)" cx="120" cy="120" r="30" />'
+    + '</g></g>';
+
+FamilyTree.templates.myTemplate_male = Object.assign({}, FamilyTree.templates.myTemplate);
+FamilyTree.templates.myTemplate_male.node = '<rect x="-10" y="-10" rx="5" ry="5" height="50" width="50" fill="#039be5" stroke-width="1" stroke="#aeaeae"></rect>';
+FamilyTree.templates.myTemplate_female = Object.assign({}, FamilyTree.templates.myTemplate);
+FamilyTree.templates.myTemplate_female.node = '<rect x="-10" y="-10" rx="5" ry="5" height="50" width="50" fill="#FF46A3" stroke-width="1" stroke="#aeaeae"></rect>';
+
             var family = new FamilyTree(document.getElementById("tree"), {
                 nodeBinding: {
                     field_0: "name"
                 },
+                template: "myTemplate",
                 nodes: [
-                    { id: 1, pids: [2], name: "Amber McKenzie" },
-                    { id: 2, pids: [1], name: "Ava Field" },
-                    { id: 3, mid: 1, fid: 2, name: "Peter Stevens" }  
+                    { id: 1, pids: [2], name: "Ben", gender: "male"},
+                    { id: 2, pids: [1], name: "Nora", gender: "female"},
+                        { id: 3, pids: [13, 14], mid: 1, fid: 2, name: "Thomas", gender: "male"},
+                        { id: 13, pids: [13, 24], name: "Iris", gender: "female"},
+                        { id: 24, pids: [13], name: "Jan", gender: "male"},
+                        { id: 14, pids: [3], name: "Tina", gender: "female"},
+                            { id: 15, pids: [21], mid: 13, fid: 3, name: "Anouk", gender: "female"},
+                            { id: 21, pids: [15], name: "Lotfi", gender: "male"},
+                                { id: 22, mid: 15, fid: 21, name: "Isra", gender: "female"},
+                            { id: 16, pids: [23], mid: 13, fid: 3, name: "Maurits", gender: "male"},
+                            { id: 23, pids: [16], name: "Roxy", gender: "female"},
+                            { id: 17, mid: 14, fid: 3, name: "Maher", gender: "male"},
+                            { id: 18, mid: 14, fid: 3, name: "Jade", gender: "female"},
+                            { id: 19, mid: 14, fid: 3, name: "Natalia", gender: "female"},
+                            { id: 20, mid: 14, fid: 3, name: "Ayman", gender: "male"},
+                        { id: 4, pids: [25], mid: 1, fid: 2, name: "Monica", gender: "female"},
+                        { id: 25, pids: [4], name: "Jan", gender: "male"},
+                            { id: 26, pids: [38], mid: 4, fid: 25, name: "Mathijs", gender: "male"},
+                            { id: 38, pids: [26], name: "Leonie", gender: "female"},
+                                { id: 39, mid: 38, fid: 26, name: "Linde", gender: "female"},
+                                { id: 40, mid: 38, fid: 26, name: "Ella", gender: "female"},
+                            { id: 27, mid: 4, fid: 25, name: "Michiel", gender: "male"},
+                            { id: 35, mid: 4, fid: 25, name: "Wouter", gender: "male"},
+                            { id: 28, mid: 4, fid: 25, name: "Simone", gender: "female"},
+                        { id: 5, pids: [29], mid: 1, fid: 2, name: "Maarten", gender: "male"},
+                        { id: 29, pids: [5], name: "Margaret", gender: "female"},
+                            { id: 30, pids: [34], mid: 29, fid: 5, name: "Suzanne", gender: "female"},
+                            { id: 34, pids: [30], name: "Woytek", gender: "male"},
+                                { id: 36, mid: 30, fid: 34, name: "Tyas", gender: "male"},
+                                { id: 37, mid: 30, fid: 34, name: "Elia", gender: "male"},
+                            { id: 31, mid: 29, fid: 5, name: "Aart", gender: "male"},
+                            { id: 32, mid: 29, fid: 5, name: "Charlotte", gender: "female"},
+                            { id: 33, mid: 29, fid: 5, name: "Jan", gender: "male"},
+                        { id: 6, pids: [8], mid: 1, fid: 2, name: "Clemens", gender: "male"},
+                        { id: 8, pids: [6], name: "Atty", gender: "female"},
+                            { id: 9, mid: 8, fid: 6, name: "Ries", gender: "male"},
+                            { id: 10, mid: 8, fid: 6, name: "Vosse", gender: "male"},
+                            { id: 11, mid: 8, fid: 6, name: "Stijn", gender: "male"},
+                            { id: 12, mid: 8, fid: 6, name: "Arend", gender: "male"},
+                        { id: 7, pids: [41], mid: 1, fid: 2, name: "Boukje", gender: "female"},
+                        { id: 41, pids: [7], name: "Joost", gender: "male"},
+                            { id: 42, pids: [45], fid: 41, name: "Inge", gender: "female"},
+                            { id: 45, pids: [42], name: "David", gender: "male"},
+                            { id: 43, mid: 7, fid: 41, name: "Sietske", gender: "female"},
+                            { id: 44, mid: 7, fid: 41, name: "Marlies", gender: "female"},
+
                 ]
             });
         </script> 
