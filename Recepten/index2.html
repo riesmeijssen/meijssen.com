@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My Recipe Website</title>
+    <!-- <script src="../scripts/PapaParse-5.0.2/paraparse.min.js"></script> -->
+    <style>
+      /* CSS for styling the recipe list and details */
+      .recipe-list {
+        list-style-type: none;
+      }
+      .recipe-list li {
+        cursor: pointer;
+      }
+      .recipe-list li:hover {
+        background-color: #f2f2f2;
+      }
+      .recipe-details {
+        display: none;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>My Recipe Website</h1>
+    <ul class="recipe-list">
+      <!-- This section will be populated with the recipe data from the CSV file -->
+    </ul>
+    <!-- This section will be populated with the recipe details when a recipe is clicked -->
+    <div id="recipe-details"></div>
+    <script>
+      // This function reads the CSV file and creates the recipe list
+      function readCSV(file) {
+        // Fetch the file
+        fetch(file)
+          .then(response => response.text())
+          .then(data => {
+            // Parse the CSV data
+            const rows = data.split("\n");
+            const recipes = [];
+            for (let i = 1; i < rows.length; i++) {
+              const cols = rows[i].split(",");
+              const recipe = {
+                name: cols[0],
+                ingredients: cols[1],
+                instructions: cols[2],
+                creator: cols[3],
+                message: cols[4]
+              };
+              recipes.push(recipe);
+            }
+            console.log(recipes)
+            // Create the recipe list
+            const list = document.querySelector(".recipe-list");
+            for (let i = 0; i < recipes.length; i++) {
+              const recipe = recipes[i];
+              const item = document.createElement("li");
+              item.innerHTML = recipe.name + " by " + recipe.creator;
+              item.addEventListener("click", () => showRecipeDetails(recipe));
+              list.appendChild(item);
+            }
+          });
+      }
+      // This function shows the recipe details when a recipe is clicked
+      function showRecipeDetails(recipe) {
+        const details = document.getElementById("recipe-details");
+        details.innerHTML = "";
+        const name = document.createElement("h2");
+        name.innerHTML = recipe.name;
+        details.appendChild(name);
+        const creator = document.createElement("h3");
+        creator.innerHTML = "by " + recipe.creator;
+        details.appendChild(creator);
+        const ingredients = document.createElement("p");
+        ingredients.innerHTML = "Ingredients: " + recipe.ingredients;
+        details.appendChild(ingredients);
+        const instructions = document.createElement("p");
+        instructions.innerHTML = "Instructions: " + recipe.instructions;
+        details.appendChild(instructions);
+        const message = document.createElement("p");
+        message.innerHTML = "Message: " + recipe.message;
+        details.appendChild(message);
+        details.style.display = "block";
+        }
+        // Call the readCSV function to load the recipe data from the CSV file
+    //   readCSV("recepten.csv");
+
+        // Load the PapaParse library
+        var Papa = require('papaparse');
+      </script>
+  </body>
+</html>

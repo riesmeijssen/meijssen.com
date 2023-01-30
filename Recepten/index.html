@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My Recipe Website</title>
+    <style>
+      /* Styling for recipe list */
+      .recipe-list {
+        list-style: none;
+        padding: 0;
+      }
+
+      .recipe-item {
+        padding: 10px;
+        border: 1px solid gray;
+        margin-bottom: 10px;
+        cursor: pointer;
+      }
+
+      /* Styling for recipe details */
+      .hidden {
+        display: none;
+      }
+
+      #recipe-details {
+        padding: 10px;
+        border: 1px solid gray;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>My Recipe Website</h1>
+    <ul class="recipe-list">
+      <li class="recipe-item" onclick="showRecipeDetails(recipe1)">Recipe 1</li>
+      <li class="recipe-item" onclick="showRecipeDetails(recipe2)">Recipe 2</li>
+      <li class="recipe-item" onclick="showRecipeDetails(recipe3)">Recipe 3</li>
+    </ul>
+    <div id="recipe-details"></div>
+
+    <script>
+      const recipe1 = {
+        name: "Chocolate Chip Cookies",
+        creator: "Jane Doe",
+        ingredients: "2 1/4 cups all-purpose flour, 1 tsp baking soda, 1 tsp salt, 1 cup butter, 3/4 cup sugar, 3/4 cup brown sugar, 1 tsp vanilla extract, 2 eggs, 2 cups chocolate chips",
+        instructions: "1. Preheat the oven to 375 degrees F. 2. In a medium bowl, mix together the flour, baking soda, and salt. 3. In a separate bowl, cream together the butter, sugar, brown sugar, and vanilla extract. 4. Add the eggs one at a time, mixing well after each addition. 5. Gradually add the flour mixture to the butter mixture. 6. Stir in the chocolate chips. 7. Drop spoonfuls of dough onto a baking sheet. 8. Bake for 8-10 minutes, or until golden brown.",
+        message: "Enjoy these delicious cookies with a glass of cold milk!"
+      };
+
+      const recipe2 = {
+        name: "Spaghetti Bolognese",
+        creator: "John Smith",
+        ingredients: "1 lb spaghetti, 1 lb ground beef, 1 onion, 2 cloves of garlic, 1 can of diced tomatoes, 1 tsp dried basil, 1 tsp dried oregano, salt and pepper to taste",
+        instructions: "1. Cook the spaghetti according to package instructions. 2. In a separate pan, brown the ground beef over medium heat. 3. Add the onion and garlic to the pan and cook until softened. 4. Add the diced tomatoes, basil, oregano, salt, and pepper to the pan. 5. Simmer for 20 minutes. 6. Drain the cooked spaghetti and add it to the bolognese sauce. 7. Toss to combine and serve.",
+        message: "This is a classic recipe that everyone should know how to make!"
+      };
+
+      const recipe3 = {
+        name: "Lemon Pound Cake",
+        creator: "Sophie Kim",
+        ingredients: "1 1/2 cups butter, 3 cups all-purpose flour, 1 tsp baking powder, 1/4 tsp baking soda, 1/2 tsp salt, 3 cups granulated sugar, 6 large eggs, 1/2 cup sour cream, 1/4 cup fresh lemon juice, 1 tsp lemon zest",
+        instructions: "1. Preheat the oven to 350 degrees F. 2. Grease and flour a 10-inch loaf pan. 3. In a medium bowl, mix together the flour, baking powder, baking soda, and salt. 4. In a separate bowl, cream together the butter and sugar. 5. Add the eggs one at a time, mixing well after each addition. 6. Stir in the sour cream, lemon juice, and lemon zest. 7. Gradually add the flour mixture to the butter mixture. 8. Pour the batter into the prepared loaf pan. 9. Bake for 1 hour and 15 minutes, or until a toothpick inserted into the center comes out clean. 10. Let the cake cool in the pan for 10 minutes before removing it from the pan and letting it cool completely.",
+        message: "This pound cake is perfect for spring and summer occasions."
+      };
+      
+      function showRecipeDetails(recipe) {
+        let details = document.getElementById("recipe-details");
+        details.innerHTML = `<h2>${recipe.name}</h2>
+                            <p>Creator: ${recipe.creator}</p>
+                            <h3>Ingredients</h3>
+                            <p>${recipe.ingredients}</p>
+                            <h3>Instructions</h3>
+                            <p>${recipe.instructions}</p>
+                            <h3>Personal Message</h3>
+                            <p>${recipe.message}</p>`;
+      }
+
+    </script>
+  </body>
+</html>
