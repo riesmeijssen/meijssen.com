@@ -1,6 +1,6 @@
 const apiKey = 'AIzaSyBRV9mXt9ohHWaZyYhiv5OWwww-NwUGXBU';
 const spreadsheetId = '1Fkb7RvspPyu2-RSZGN7yEAv47NGCPTf94Ab3-3e4J6U';
-const range = 'form_reactions!A1:H23';
+const range = 'form_reactions!A1:H200';
 
 const recipe_types = ["Ontbijt", "Lunch", "Tussendoortje", "Avondeten", "Toetje"]
 
@@ -24,6 +24,9 @@ async function fetchRecipes() {
 function preprocessRecipes(recipes) {
     let result = [];
     for (let i = 1; i < recipes.length; i++) {
+        if (recipes[i].length < 7) {
+            continue;
+        }
         let recipe = recipes[i];
         let creator = recipe[1];
         let type = recipe[2];
