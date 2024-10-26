@@ -27,7 +27,6 @@ function preprocessRecipes(recipes) {
         if (recipes[i].length < 7) {
             continue;
         }
-        console.log(recipes[i]);
         let recipe = recipes[i];
         let creator = recipe[1];
         let type = recipe[2];
