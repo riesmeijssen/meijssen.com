@@ -27,6 +27,7 @@ function preprocessRecipes(recipes) {
         if (recipes[i].length < 7) {
             continue;
         }
+        console.log(recipes[i]);
         let recipe = recipes[i];
         let creator = recipe[1];
         let type = recipe[2];
@@ -60,11 +61,11 @@ function formatRecipe(recipe) {
         return `
             <div>
                 <h3>Ingrediënten</h3>
-                <p>${recipe.ingredients}</p>
+                <p>${recipe.ingredients.replace(/\n/g, '<br>')}</p>
                 <h3>Instructies</h3>
-                <p>${recipe.instructions}</p>
+                <p>${recipe.instructions.replace(/\n/g, '<br>')}</p>
                 <h3>Opmerkingen</h3>
-                <p>${recipe.notes}</p>
+                <p>${recipe.notes.replace(/\n/g, '<br>')}</p>
             </div>
         `;
     }
