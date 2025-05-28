@@ -185,9 +185,19 @@ window.addEventListener('load', () => {
     canvas.addEventListener("mouseup", finishedPositionMouse)
     canvas.addEventListener("mousemove", drawMouse)
 
-    canvas.addEventListener("touchdown", startPositionTouch)
-    canvas.addEventListener("touchup", finishedPositionTouch)
+    // Touch events for mobile support
+    canvas.addEventListener("touchstart", startPositionTouch)
+    canvas.addEventListener("touchend", finishedPositionTouch)
     canvas.addEventListener("touchmove", drawTouch)
+
+    // Prevent right click context menu
+    canvas.addEventListener("touchcancel", finishedPositionTouch)
+    canvas.addEventListener("touchleave", finishedPositionTouch)
+
+    // Make the canvas not scrollable
+    canvas.addEventListener("touchmove", event => {
+        event.preventDefault()
+    })
 
     canvas.addEventListener("wheel", scrollDrawingSize)
     canvas.addEventListener("contextmenu", event => event.preventDefault())
