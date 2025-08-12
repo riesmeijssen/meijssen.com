@@ -1,20 +1,20 @@
 // Configuration object for boid behavior
 const BOID_CONFIG = {
     // Perception ranges
-    ALIGNMENT_RADIUS: 60,
-    COHESION_RADIUS: 70,
-    SEPARATION_RADIUS: 40,
-    MOUSE_RADIUS: 150,
+    ALIGNMENT_RADIUS: 50,
+    COHESION_RADIUS: 60,
+    SEPARATION_RADIUS: 35,
+    MOUSE_RADIUS: 0,    // No mouse interaction
     
     // Force weights
-    ALIGNMENT_WEIGHT: 0.8,
-    COHESION_WEIGHT: 0.6,
+    ALIGNMENT_WEIGHT: 1.0,
+    COHESION_WEIGHT: 0.8,
     SEPARATION_WEIGHT: 1.2,
-    MOUSE_WEIGHT: 4.0,  // Increased mouse influence
+    MOUSE_WEIGHT: 0,    // No mouse influence
     
     // Movement constraints
-    MAX_SPEED: 3,       // Slightly slower for smoother movement
-    MAX_FORCE: 0.15     // Reduced for smoother turns
+    MAX_SPEED: 2,       // Slower for smoother, more graceful movement
+    MAX_FORCE: 0.12     // Gentler turns
 };
 
 // Vector utility functions
@@ -127,32 +127,8 @@ class Boid {
     }
 
     mouseInteraction(mouseX, mouseY, isAttracting) {
-        let steering = { x: 0, y: 0 };
-        const mousePos = { x: mouseX, y: mouseY };
-        const distance = Vector.magnitude(Vector.subtract(this.position, mousePos));
-        
-        if (distance < BOID_CONFIG.MOUSE_RADIUS) {
-            let force = Vector.subtract(this.position, mousePos);
-            force = Vector.normalize(force);
-            
-            // Adjust force based on distance (stronger when closer)
-            const intensity = 1 - (distance / BOID_CONFIG.MOUSE_RADIUS);
-            
-            if (isAttracting) {
-                force = Vector.multiply(force, -1);
-                // Extra boost when attracting
-                force = Vector.multiply(force, 1 + intensity);
-            } else {
-                // Stronger avoidance when very close
-                force = Vector.multiply(force, 1 + (intensity * 2));
-            }
-            
-            steering = Vector.multiply(force, BOID_CONFIG.MAX_SPEED);
-            steering = Vector.subtract(steering, this.velocity);
-            return Vector.limit(steering, BOID_CONFIG.MAX_FORCE * (2 + intensity * 2));
-        }
-        
-        return steering;
+        // No mouse interaction on homepage
+        return { x: 0, y: 0 };
     }
 
     update(boids, mouseX, mouseY, isAttracting) {
@@ -231,7 +207,7 @@ function init() {
     
     // Create boids
     console.log('Creating boids...');  // Debug line
-    const numBoids = window.innerWidth < 768 ? 50 : 100; // Fewer boids on mobile
+    const numBoids = window.innerWidth < 768 ? 100 : 200; // Reduced number of boids for better performance
     for (let i = 0; i < numBoids; i++) {
         boids.push(new Boid(
             Math.random() * canvas.width,
@@ -239,33 +215,6 @@ function init() {
         ));
     }
     console.log('Created', boids.length, 'boids');  // Debug line
-    
-    // Mouse events with enhanced interaction
-    let lastMouseX = 0;
-    let lastMouseY = 0;
-    let mouseSpeed = 0;
-    
-    canvas.addEventListener('mousemove', (event) => {
-        const dx = event.clientX - lastMouseX;
-        const dy = event.clientY - lastMouseY;
-        mouseSpeed = Math.sqrt(dx * dx + dy * dy);
-        
-        lastMouseX = mouseX = event.clientX;
-        lastMouseY = mouseY = event.clientY;
-        
-        // Adjust mouse influence based on movement speed
-        BOID_CONFIG.MOUSE_WEIGHT = Math.min(6.0, 4.0 + (mouseSpeed / 50));
-    });
-    
-    canvas.addEventListener('mousedown', () => {
-        isMouseDown = true;
-        BOID_CONFIG.MOUSE_RADIUS = 200; // Larger radius when attracting
-    });
-    
-    canvas.addEventListener('mouseup', () => {
-        isMouseDown = false;
-        BOID_CONFIG.MOUSE_RADIUS = 150; // Normal radius when repelling
-    });
     
     // Start animation
     console.log('Starting animation...');  // Debug line

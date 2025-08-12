@@ -34,6 +34,15 @@
     overflow: hidden;
 }
 
+.feature-card h3 {
+    color: var(--main-color);
+    margin-bottom: 1rem;
+}
+
+.feature-card p {
+    color: var(--text-color);
+}
+
 .feature-icon {
     width: 80px;
     height: 80px;
