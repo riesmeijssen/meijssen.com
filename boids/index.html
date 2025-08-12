@@ -10,14 +10,36 @@
     <style>
         .controls-panel {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            top: 0;
+            left: 0;
+            bottom: 0;
             background: rgba(255, 255, 255, 0.95);
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
             z-index: 1000;
             width: 300px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: #888 #f1f1f1;
+        }
+
+        .controls-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .controls-panel::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .controls-panel::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .controls-panel::-webkit-scrollbar-thumb:hover {
+            background: #666;
         }
 
         .control-group {
@@ -50,16 +72,17 @@
 
         .preset-button {
             padding: 8px;
-            background: var(--main-color);
-            color: white;
-            border: none;
+            background: #f0f0f0;
+            color: black;
+            border: 1px solid #ccc;
             border-radius: 4px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.3s;
         }
 
         .preset-button:hover {
-            background: var(--accent-color);
+            background: #e0e0e0;
+            border-color: #999;
         }
 
         #stats {
@@ -75,17 +98,20 @@
         .back-button {
             position: fixed;
             top: 20px;
-            left: 20px;
+            right: 20px;
             padding: 10px 20px;
-            background: var(--main-color);
-            color: white;
+            background: #f0f0f0;
+            color: black;
             text-decoration: none;
+            border: 1px solid #ccc;
             border-radius: 4px;
             z-index: 1000;
+            transition: all 0.3s;
         }
 
         .back-button:hover {
-            background: var(--accent-color);
+            background: #e0e0e0;
+            border-color: #999;
         }
     </style>
 </head>
@@ -104,19 +130,25 @@
         <div class="control-group">
             <label for="alignmentWeight">Alignment Force</label>
             <input type="range" id="alignmentWeight" min="0" max="2" step="0.1" value="1.0">
-            <span class="value-display" id="alignmentValue">1.0</span>
+            <span class="value-display" id="alignmentWeightValue">1.0</span>
         </div>
 
         <div class="control-group">
             <label for="cohesionWeight">Cohesion Force</label>
             <input type="range" id="cohesionWeight" min="0" max="2" step="0.1" value="1.0">
-            <span class="value-display" id="cohesionValue">1.0</span>
+            <span class="value-display" id="cohesionWeightValue">1.0</span>
         </div>
 
         <div class="control-group">
             <label for="separationWeight">Separation Force</label>
             <input type="range" id="separationWeight" min="0" max="2" step="0.1" value="1.5">
-            <span class="value-display" id="separationValue">1.5</span>
+            <span class="value-display" id="separationWeightValue">1.5</span>
+        </div>
+
+        <div class="control-group">
+            <label for="minSpeed">Min Speed</label>
+            <input type="range" id="minSpeed" min="0" max="5" step="0.1" value="0">
+            <span class="value-display" id="minSpeedValue">0</span>
         </div>
 
         <div class="control-group">
@@ -126,9 +158,33 @@
         </div>
 
         <div class="control-group">
-            <label for="perceptionRadius">Perception Radius</label>
-            <input type="range" id="perceptionRadius" min="20" max="100" value="50">
-            <span class="value-display" id="perceptionValue">50</span>
+            <label for="alignmentRadius">Alignment Radius</label>
+            <input type="range" id="alignmentRadius" min="20" max="100" value="50">
+            <span class="value-display" id="alignmentRadiusValue">50</span>
+        </div>
+        
+        <div class="control-group">
+            <label for="cohesionRadius">Cohesion Radius</label>
+            <input type="range" id="cohesionRadius" min="20" max="100" value="60">
+            <span class="value-display" id="cohesionRadiusValue">60</span>
+        </div>
+
+        <div class="control-group">
+            <label for="separationRadius">Separation Radius</label>
+            <input type="range" id="separationRadius" min="20" max="100" value="35">
+            <span class="value-display" id="separationRadiusValue">35</span>
+        </div>
+
+        <div class="control-group">
+            <label for="maxForce">Max Force</label>
+            <input type="range" id="maxForce" min="0.05" max="0.5" step="0.01" value="0.12">
+            <span class="value-display" id="maxForceValue">0.12</span>
+        </div>
+
+        <div class="control-group">
+            <label for="boidMass">Boid Mass (Higher = Slower Turning)</label>
+            <input type="range" id="boidMass" min="0.5" max="5" step="0.1" value="1.0">
+            <span class="value-display" id="boidMassValue">1.0</span>
         </div>
 
         <div class="preset-buttons">
@@ -145,32 +201,6 @@
 
     <script src="../js/boids.js"></script>
     <script>
-        // Initialize all sliders with their corresponding display values
-        document.querySelectorAll('input[type="range"]').forEach(slider => {
-            const display = document.getElementById(slider.id + 'Value');
-            if (display) {
-                display.textContent = slider.value;
-                slider.addEventListener('input', () => {
-                    display.textContent = slider.value;
-                    updateBoidsConfig();
-                });
-            }
-        });
-
-        function updateBoidsConfig() {
-            BOID_CONFIG.ALIGNMENT_WEIGHT = parseFloat(document.getElementById('alignmentWeight').value);
-            BOID_CONFIG.COHESION_WEIGHT = parseFloat(document.getElementById('cohesionWeight').value);
-            BOID_CONFIG.SEPARATION_WEIGHT = parseFloat(document.getElementById('separationWeight').value);
-            BOID_CONFIG.MAX_SPEED = parseFloat(document.getElementById('maxSpeed').value);
-            BOID_CONFIG.ALIGNMENT_RADIUS = parseFloat(document.getElementById('perceptionRadius').value);
-            BOID_CONFIG.COHESION_RADIUS = parseFloat(document.getElementById('perceptionRadius').value);
-            
-            // Update number of boids if changed
-            const newBoidsCount = parseInt(document.getElementById('numBoids').value);
-            if (newBoidsCount !== boids.length) {
-                updateBoidsCount(newBoidsCount);
-            }
-        }
 
         function updateBoidsCount(count) {
             if (count > boids.length) {
@@ -189,51 +219,69 @@
 
         const presets = {
             scattered: {
-                alignment: 0.2,
-                cohesion: 0.2,
-                separation: 2.0,
+                alignmentWeight: 0.2,
+                cohesionWeight: 0.2,
+                separationWeight: 2.0,
+                minSpeed: 0.5,
                 maxSpeed: 6,
-                perception: 30
+                alignmentRadius: 30,
+                cohesionRadius: 35,
+                separationRadius: 25,
+                maxForce: 0.15
             },
             flocking: {
-                alignment: 1.5,
-                cohesion: 1.0,
-                separation: 1.0,
+                alignmentWeight: 1.5,
+                cohesionWeight: 1.0,
+                separationWeight: 1.0,
+                minSpeed: 1.0,
                 maxSpeed: 4,
-                perception: 50
+                alignmentRadius: 50,
+                cohesionRadius: 60,
+                separationRadius: 35,
+                maxForce: 0.12
             },
             chaos: {
-                alignment: 2.0,
-                cohesion: 2.0,
-                separation: 0.5,
+                alignmentWeight: 2.0,
+                cohesionWeight: 2.0,
+                separationWeight: 0.5,
+                minSpeed: 2.0,
                 maxSpeed: 8,
-                perception: 70
+                alignmentRadius: 70,
+                cohesionRadius: 80,
+                separationRadius: 30,
+                maxForce: 0.2,
+                boidMass: 0.7
             },
             calm: {
-                alignment: 0.8,
-                cohesion: 0.8,
-                separation: 1.2,
+                alignmentWeight: 0.8,
+                cohesionWeight: 0.8,
+                separationWeight: 1.2,
+                minSpeed: 0.2,
                 maxSpeed: 3,
-                perception: 40
+                alignmentRadius: 40,
+                cohesionRadius: 50,
+                separationRadius: 35,
+                maxForce: 0.1,
+                boidMass: 2.0
             }
         };
 
         function setPreset(name) {
             const preset = presets[name];
-            document.getElementById('alignmentWeight').value = preset.alignment;
-            document.getElementById('cohesionWeight').value = preset.cohesion;
-            document.getElementById('separationWeight').value = preset.separation;
-            document.getElementById('maxSpeed').value = preset.maxSpeed;
-            document.getElementById('perceptionRadius').value = preset.perception;
             
-            // Update all value displays
-            document.querySelectorAll('input[type="range"]').forEach(slider => {
-                const display = document.getElementById(slider.id + 'Value');
-                if (display) {
-                    display.textContent = slider.value;
+            // Update all slider values based on preset
+            for (const [key, value] of Object.entries(preset)) {
+                const slider = document.getElementById(key);
+                if (slider) {
+                    slider.value = value;
+                    const display = document.getElementById(key + 'Value');
+                    if (display) {
+                        display.textContent = value;
+                    }
                 }
-            });
+            }
             
+            // Update boid configuration using the common update function
             updateBoidsConfig();
         }
 
