@@ -3,50 +3,161 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-        
-        <div class="header">
-          <h1 id="website-titel">MC&E</h1>
-          <h3 id="website-subtitel"><em>Meijssen Consulting & Embroidery</em></h3>
-        </div>
         <link rel="shortcut icon" href="img/walrusicoon.png">
-        <title>Meijssen</title>
-
+        <title>Meijssen Consulting & Embroidery</title>
         <link href="css/vosse.css" rel="stylesheet">
-        
+        <link href="css/boids.css" rel="stylesheet">
+        <link href="css/features.css" rel="stylesheet">
+        <link href="css/header.css" rel="stylesheet">
+        <link href="css/bottom-sections.css" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        <link href="css/simple-text.css" rel="stylesheet">
+        <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+        <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     </head>
 
-    <body class="homepage">
+    <body class="homepage" onload="AOS.init()">
+        <canvas id="boids-canvas"></canvas>
 
-      <div id="navigator">
-        <div class="navigator-button" onclick="location.href='index.html';">
-          Home
-        </div>
-        <div class="navigator-button" onclick="location.href='Escher/index.html';">
-          Escher
-        </div>
-        <div class="navigator-button" onclick="location.href='recepten/index.html';">
-          Recepten
-        </div>
-        <div class="navigator-button">
-          Boyds (TODO)
-        </div>
-        <div class="navigator-button" onclick="location.href='meet_the_team.html';">
-          Meet the team
-        </div>
-      </div>
+        <nav class="main-nav">
+            <div class="nav-brand">
+                <h1>MC&E</h1>
+                <p class="subtitle">Meijssen Consulting & Embroidery</p>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="active">Home</a>
+                <a href="Escher/index.html">Escher</a>
+                <a href="recepten/index.html">Recepten</a>
+                <a href="boids/index.html">Boids Lab</a>
+                <a href="meet_the_team.html">Meet the Team</a>
+            </div>
+        </nav>
 
-      <div class="bg-1">
-        <div class="background-square"></div>
+        <header class="hero">
+            <div class="hero-content">
+                <div class="glitch-container">
+                    <h1 class="hero-title glitch" data-text="Innovation Meets Craftsmanship">Innovation Meets Craftsmanship</h1>
+                </div>
+                <p class="hero-subtitle">Where technology and creativity converge</p>
+                <div class="hero-cta">
+                    <a href="#explore" class="cta-button primary">Explore Our Work</a>
+                    <a href="meet_the_team.html" class="cta-button secondary">Meet the Team</a>
+                </div>
+            </div>
+            <div class="scroll-indicator">
+                <div class="mouse">
+                    <div class="wheel"></div>
+                </div>
+                <div class="arrow"></div>
+            </div>
+        </header>
 
-        <div class="floating-quote" id="quote-1">Solutions for the Future</div>
-        <div class="floating-quote" id="quote-2">Innovation</div>
-        <div class="floating-quote" id="quote-3">Changing the World</div>
-        <div class="floating-quote" id="quote-4">Beautiful Embroidery</div>
-      </div>
+        <section id="explore" class="features">
+            <h2 class="section-title">What We Do</h2>
+            <div class="features-grid">
+                <div class="feature-card" data-aos="fade-up">
+                    <div class="feature-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <h3>Solutions for the Future</h3>
+                    <p>Innovative approaches to modern challenges</p>
+                    <div class="feature-hover">
+                        <p class="feature-detail">We transform complex problems into elegant solutions through innovative thinking and cutting-edge technology.</p>
+                    </div>
+                </div>
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="feature-icon">
+                        <i class="fas fa-code-branch"></i>
+                    </div>
+                    <h3>Innovation Hub</h3>
+                    <p>Cutting-edge technology solutions</p>
+                    <div class="feature-hover">
+                        <p class="feature-detail">Explore our interactive projects like the Boids simulation and Escher-inspired creations.</p>
+                    </div>
+                </div>
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="feature-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h3>Global Impact</h3>
+                    <p>Making a positive impact globally</p>
+                    <div class="feature-hover">
+                        <p class="feature-detail">Our solutions reach across borders, creating positive change in communities worldwide.</p>
+                    </div>
+                </div>
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="feature-icon">
+                        <i class="fas fa-paint-brush"></i>
+                    </div>
+                    <h3>Artistry in Code</h3>
+                    <p>Where precision meets creativity</p>
+                    <div class="feature-hover">
+                        <p class="feature-detail">Beautiful embroidery patterns generated through algorithmic design.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-      <div class="bg-2">
-        
-      </div>
+        <section class="showcase">
+            <div class="showcase-grid">
+                <div class="showcase-item" data-aos="zoom-in">
+                    <img src="img/TBR_20211016_591.jpg" alt="Project Showcase">
+                    <div class="showcase-overlay">
+                        <h3>Latest Projects</h3>
+                        <p>Check out our recent work</p>
+                    </div>
+                </div>
+                <div class="showcase-item" data-aos="zoom-in" data-aos-delay="100">
+                    <div class="boids-preview">
+                        <canvas id="preview-canvas"></canvas>
+                        <div class="preview-overlay">
+                            <h3>Boids Lab</h3>
+                            <p>Interactive particle simulation</p>
+                            <a href="boids/index.html" class="preview-button">Try it out</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="showcase-item" data-aos="zoom-in" data-aos-delay="200">
+                    <img src="img/grid.png" alt="Escher Project">
+                    <div class="showcase-overlay">
+                        <h3>Escher Project</h3>
+                        <p>Mathematical art exploration</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta">
+            <div class="cta-content" data-aos="fade-up">
+                <h2>Ready to Create Something Amazing?</h2>
+                <p>Let's bring your ideas to life with our unique blend of technology and creativity</p>
+                <div class="cta-buttons">
+                    <a href="meet_the_team.html" class="cta-button primary">Start a Project</a>
+                    <a href="#" class="cta-button secondary">Learn More</a>
+                </div>
+            </div>
+            <div class="cta-background"></div>
+        </section>
+
+        <!-- AOS Library for scroll animations -->
+        <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+        <script>
+            AOS.init({
+                duration: 800,
+                easing: 'ease-out-quad',
+                once: true
+            });
+
+            // Smooth scroll for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        </script>
+        <script src="js/boids.js"></script>
     </body>
 </html>

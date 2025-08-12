@@ -1,0 +1,89 @@
+/* Simple text styles - overriding fancy effects with plain black text */
+.nav-brand h1 {
+    color: #000000 !important;
+    -webkit-text-fill-color: initial !important;
+    background: none !important;
+    font-weight: bold;
+    filter: none !important;
+}
+
+.nav-brand .subtitle {
+    color: #000000 !important;
+}
+
+.hero-title {
+    color: #000000 !important;
+    -webkit-text-fill-color: initial !important;
+    background: none !important;
+    filter: none !important;
+    text-shadow: none !important;
+}
+
+.hero-subtitle {
+    color: #000000 !important;
+    -webkit-text-fill-color: initial !important;
+    background: none !important;
+}
+
+.feature-card h3,
+.feature-card p {
+    color: #000000 !important;
+}
+
+.preview-button {
+    color: #000000 !important;
+    background: white !important;
+    border: 1px solid #000000 !important;
+    box-shadow: none !important;
+}
+
+.cta-content {
+    color: #000000 !important;
+}
+
+.cta-content h2,
+.cta-content p {
+    color: #000000 !important;
+}
+
+.cta-buttons .cta-button {
+    color: #000000 !important;
+    background: white !important;
+    border: 1px solid #000000 !important;
+    box-shadow: none !important;
+}
+
+.cta-buttons .cta-button.secondary {
+    color: #000000 !important;
+    background: white !important;
+    border: 1px solid #000000 !important;
+}
+
+.hero-content {
+    background: white !important;
+}
+
+.cta-background {
+    background: white !important;
+}
+
+/* Remove all fancy effects */
+.hero::before,
+.hero-content::before,
+.cta-content::before {
+    display: none !important;
+}
+
+/* Make sure overlays don't interfere with text */
+.showcase-overlay,
+.preview-overlay {
+    background: rgba(255, 255, 255, 0.9) !important;
+}
+
+.showcase-overlay h3,
+.showcase-overlay p,
+.preview-overlay h3,
+.preview-overlay p {
+    color: #000000 !important;
+    text-shadow: none !important;
+}

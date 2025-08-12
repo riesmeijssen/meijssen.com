@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="../img/walrusicoon.png">
+    <title>Boids Playground - MC&E</title>
+    <link href="../css/vosse.css" rel="stylesheet">
+    <link href="../css/boids.css" rel="stylesheet">
+    <style>
+        .controls-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            width: 300px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: #888 #f1f1f1;
+        }
+
+        .controls-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .controls-panel::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .controls-panel::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .controls-panel::-webkit-scrollbar-thumb:hover {
+            background: #666;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        .value-display {
+            font-size: 0.9em;
+            color: var(--accent-color);
+        }
+
+        .performance-toggle {
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-label {
+            font-size: 0.9em;
+            color: var(--text-color);
+        }
+
+        /* Switch styles */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .switch .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .switch .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        .switch input:checked + .slider {
+            background-color: #4a90e2;
+        }
+
+        .switch input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .preset-button {
+            padding: 8px;
+            background: #f0f0f0;
+            color: black;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .preset-button:hover {
+            background: #e0e0e0;
+            border-color: #999;
+        }
+
+        #stats {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: #f0f0f0;
+            color: black;
+            text-decoration: none;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        .back-button:hover {
+            background: #e0e0e0;
+            border-color: #999;
+        }
+    </style>
+</head>
+<body class="homepage">
+    <canvas id="boids-canvas"></canvas>
+    <a href="../index.html" class="back-button">← Back to Home</a>
+
+    <div class="controls-panel">
+        <h2>Boids Controls</h2>
+        <div class="control-group">
+            <label for="numBoids">Number of Boids</label>
+            <input type="range" id="numBoids" min="10" max="5000" value="200">
+            <span class="value-display" id="numBoidsValue">200</span>
+        </div>
+        
+        <div class="control-group">
+            <label for="alignmentWeight">Alignment Force</label>
+            <input type="range" id="alignmentWeight" min="0" max="2" step="0.1" value="1.0">
+            <span class="value-display" id="alignmentWeightValue">1.0</span>
+        </div>
+
+        <div class="control-group">
+            <label for="cohesionWeight">Cohesion Force</label>
+            <input type="range" id="cohesionWeight" min="0" max="2" step="0.1" value="1.0">
+            <span class="value-display" id="cohesionWeightValue">1.0</span>
+        </div>
+
+        <div class="control-group">
+            <label for="separationWeight">Separation Force</label>
+            <input type="range" id="separationWeight" min="0" max="2" step="0.1" value="1.5">
+            <span class="value-display" id="separationWeightValue">1.5</span>
+        </div>
+
+        <div class="control-group">
+            <label for="minSpeed">Min Speed</label>
+            <input type="range" id="minSpeed" min="0" max="5" step="0.1" value="0">
+            <span class="value-display" id="minSpeedValue">0</span>
+        </div>
+
+        <div class="control-group">
+            <label for="maxSpeed">Max Speed</label>
+            <input type="range" id="maxSpeed" min="1" max="10" step="0.5" value="4">
+            <span class="value-display" id="maxSpeedValue">4</span>
+        </div>
+
+        <div class="control-group">
+            <label for="alignmentRadius">Alignment Radius</label>
+            <input type="range" id="alignmentRadius" min="20" max="100" value="50">
+            <span class="value-display" id="alignmentRadiusValue">50</span>
+        </div>
+        
+        <div class="control-group">
+            <label for="cohesionRadius">Cohesion Radius</label>
+            <input type="range" id="cohesionRadius" min="20" max="100" value="60">
+            <span class="value-display" id="cohesionRadiusValue">60</span>
+        </div>
+
+        <div class="control-group">
+            <label for="separationRadius">Separation Radius</label>
+            <input type="range" id="separationRadius" min="20" max="100" value="35">
+            <span class="value-display" id="separationRadiusValue">35</span>
+        </div>
+
+        <div class="control-group">
+            <label for="maxForce">Max Force</label>
+            <input type="range" id="maxForce" min="0.05" max="0.5" step="0.01" value="0.12">
+            <span class="value-display" id="maxForceValue">0.12</span>
+        </div>
+
+        <div class="control-group">
+            <label for="boidMass">Boid Mass (Higher = Slower Turning)</label>
+            <input type="range" id="boidMass" min="0.5" max="5" step="0.1" value="1.0">
+            <span class="value-display" id="boidMassValue">1.0</span>
+        </div>
+
+        <div class="performance-toggle">
+            <label class="switch-container">
+                <span class="toggle-label">High Performance Mode (10,000 boids)</span>
+                <div class="switch">
+                    <input type="checkbox" id="performanceMode" aria-label="Toggle high performance mode">
+                    <span class="slider round"></span>
+                </div>
+            </label>
+        </div>
+
+        <div class="preset-buttons">
+            <button class="preset-button" onclick="setPreset('scattered')">Scattered</button>
+            <button class="preset-button" onclick="setPreset('flocking')">Flocking</button>
+            <button class="preset-button" onclick="setPreset('chaos')">Chaos</button>
+            <button class="preset-button" onclick="setPreset('calm')">Calm</button>
+        </div>
+    </div>
+
+    <div id="stats">
+        FPS: <span id="fpsCounter">0</span>
+    </div>
+
+    <script src="../js/boids.js"></script>
+    <script>
+
+        function updateBoidsCount(count) {
+            if (count > boids.length) {
+                // Add more boids
+                for (let i = boids.length; i < count; i++) {
+                    boids.push(new Boid(
+                        Math.random() * canvas.width,
+                        Math.random() * canvas.height
+                    ));
+                }
+            } else if (count < boids.length) {
+                // Remove excess boids
+                boids.length = count;
+            }
+        }
+
+        const presets = {
+            scattered: {
+                alignmentWeight: 0.2,
+                cohesionWeight: 0.2,
+                separationWeight: 2.0,
+                minSpeed: 0.5,
+                maxSpeed: 6,
+                alignmentRadius: 30,
+                cohesionRadius: 35,
+                separationRadius: 25,
+                maxForce: 0.15
+            },
+            flocking: {
+                alignmentWeight: 1.5,
+                cohesionWeight: 1.0,
+                separationWeight: 1.0,
+                minSpeed: 1.0,
+                maxSpeed: 4,
+                alignmentRadius: 50,
+                cohesionRadius: 60,
+                separationRadius: 35,
+                maxForce: 0.12
+            },
+            chaos: {
+                alignmentWeight: 2.0,
+                cohesionWeight: 2.0,
+                separationWeight: 0.5,
+                minSpeed: 2.0,
+                maxSpeed: 8,
+                alignmentRadius: 70,
+                cohesionRadius: 80,
+                separationRadius: 30,
+                maxForce: 0.2,
+                boidMass: 0.7
+            },
+            calm: {
+                alignmentWeight: 0.8,
+                cohesionWeight: 0.8,
+                separationWeight: 1.2,
+                minSpeed: 0.2,
+                maxSpeed: 3,
+                alignmentRadius: 40,
+                cohesionRadius: 50,
+                separationRadius: 35,
+                maxForce: 0.1,
+                boidMass: 2.0
+            }
+        };
+
+        function setPreset(name) {
+            const preset = presets[name];
+            
+            // Update all slider values based on preset
+            for (const [key, value] of Object.entries(preset)) {
+                const slider = document.getElementById(key);
+                if (slider) {
+                    slider.value = value;
+                    const display = document.getElementById(key + 'Value');
+                    if (display) {
+                        display.textContent = value;
+                    }
+                }
+            }
+            
+            // Update boid configuration using the common update function
+            updateBoidsConfig();
+        }
+
+        // FPS Counter
+        let frameCount = 0;
+        let lastTime = performance.now();
+        const fpsCounter = document.getElementById('fpsCounter');
+
+        function updateFPS() {
+            frameCount++;
+            const currentTime = performance.now();
+            
+            if (currentTime - lastTime >= 1000) {
+                fpsCounter.textContent = frameCount;
+                frameCount = 0;
+                lastTime = currentTime;
+            }
+            
+            requestAnimationFrame(updateFPS);
+        }
+
+        updateFPS();
+    </script>
+</body>
+</html>
