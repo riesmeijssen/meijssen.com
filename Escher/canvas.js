@@ -202,6 +202,7 @@ window.addEventListener('load', () => {
     canvas.addEventListener("wheel", scrollDrawingSize)
     canvas.addEventListener("contextmenu", event => event.preventDefault())
     reset_button.addEventListener("click", resetDrawing)
+    reset_button_small.addEventListener("click", resetDrawing)
 
     global_rotation_slider.addEventListener("input", updateSettings)
     xy_angle_slider.addEventListener("input", updateSettings)

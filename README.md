@@ -12,3 +12,8 @@ Ideeënlijst:
 - Boterham beleg tool + THREEjs visuals
 - Wrap beleg tool + THREEjs visuals
 - CV
+
+## Escher todo:
+
+- P3 zeshoek visualiseren
+- symmetrieën: https://i0.wp.com/tessellations.ca/wp-content/uploads/2015/06/ewatb.png?ssl=1

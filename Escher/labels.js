@@ -21,6 +21,7 @@ const view_aside_button = document.getElementById("myInput")
 const aside_element = document.getElementsByClassName("aside-class")[0]
 
 const reset_button = document.getElementById("reset-button")
+const reset_button_small = document.getElementById("reset-button-small")
 
 const symmetry_select = document.getElementById("symmetry-select")
 
