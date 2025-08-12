@@ -1,5 +1,11 @@
+// FPS tracking variables
+let lastTime = 0;
+let frameCount = 0;
+let fps = 0;
+let lastFpsUpdate = 0;
+
 // Configuration object for boid behavior
-const BOID_CONFIG = {
+const NORMAL_CONFIG = {
     // Perception ranges
     ALIGNMENT_RADIUS: 50,
     COHESION_RADIUS: 60,
@@ -13,29 +19,151 @@ const BOID_CONFIG = {
     MOUSE_WEIGHT: 0,    // No mouse influence
     
     // Movement constraints
-    MIN_SPEED: 0,       // Minimum speed (0 allows stopping)
+    MIN_SPEED: 1,       // Minimum speed (0 allows stopping)
     MAX_SPEED: 2,       // Slower for smoother, more graceful movement
     MAX_FORCE: 0.12,    // Gentler turns
-    BOID_MASS: 1.0      // Base mass of boids (affects turning)
+    BOID_MASS: 1.0,     // Base mass of boids (affects turning)
+    GRID_SIZE: 100      // Size of spatial grid cells
 };
 
-// Vector utility functions
-const Vector = {
-    add: (v1, v2) => ({ x: v1.x + v2.x, y: v1.y + v2.y }),
-    subtract: (v1, v2) => ({ x: v1.x - v2.x, y: v1.y - v2.y }),
-    multiply: (v, scalar) => ({ x: v.x * scalar, y: v.y * scalar }),
-    divide: (v, scalar) => ({ x: v.x / scalar, y: v.y / scalar }),
-    magnitude: (v) => Math.hypot(v.x, v.y),
-    normalize: (v) => {
-        const mag = Vector.magnitude(v);
-        return mag > 0 ? Vector.divide(v, mag) : { x: 0, y: 0 };
-    },
-    limit: (v, max) => {
-        const mag = Vector.magnitude(v);
-        if (mag > max) {
-            return Vector.multiply(Vector.normalize(v), max);
+const HIGH_PERFORMANCE_CONFIG = {
+    // Reduced perception ranges for performance
+    ALIGNMENT_RADIUS: 30,
+    COHESION_RADIUS: 40,
+    SEPARATION_RADIUS: 25,
+    MOUSE_RADIUS: 0,
+    
+    // Adjusted weights for reduced ranges
+    ALIGNMENT_WEIGHT: 1.2,
+    COHESION_WEIGHT: 1.0,
+    SEPARATION_WEIGHT: 1.4,
+    MOUSE_WEIGHT: 0,
+    
+    // Faster movement for more dynamic appearance
+    MIN_SPEED: 1,
+    MAX_SPEED: 3,
+    MAX_FORCE: 0.15,
+    BOID_MASS: 1.0,
+    GRID_SIZE: 150      // Larger grid cells for better performance
+};
+
+// Current configuration (starts with normal mode)
+let BOID_CONFIG = { ...NORMAL_CONFIG };
+
+// Spatial grid for optimization
+class SpatialGrid {
+    constructor(width, height, cellSize) {
+        this.cellSize = cellSize;
+        this.cols = Math.ceil(width / cellSize);
+        this.rows = Math.ceil(height / cellSize);
+        this.grid = new Array(this.cols * this.rows).fill().map(() => []);
+    }
+
+    clear() {
+        for (let i = 0; i < this.grid.length; i++) {
+            this.grid[i].length = 0;
         }
+    }
+
+    insert(boid) {
+        const col = Math.floor(boid.position.x / this.cellSize);
+        const row = Math.floor(boid.position.y / this.cellSize);
+        if (col >= 0 && col < this.cols && row >= 0 && row < this.rows) {
+            this.grid[row * this.cols + col].push(boid);
+        }
+    }
+
+    getNearbyBoids(boid, radius) {
+        const nearby = [];
+        const col = Math.floor(boid.position.x / this.cellSize);
+        const row = Math.floor(boid.position.y / this.cellSize);
+        const cellRadius = Math.ceil(radius / this.cellSize);
+
+        for (let i = -cellRadius; i <= cellRadius; i++) {
+            for (let j = -cellRadius; j <= cellRadius; j++) {
+                const targetCol = col + i;
+                const targetRow = row + j;
+                if (targetCol >= 0 && targetCol < this.cols && targetRow >= 0 && targetRow < this.rows) {
+                    const cell = this.grid[targetRow * this.cols + targetCol];
+                    nearby.push(...cell);
+                }
+            }
+        }
+        return nearby;
+    }
+}
+
+// Optimized Vector utility functions
+const Vector = {
+    // Reuse objects to reduce garbage collection
+    _temp: { x: 0, y: 0 },
+    _temp2: { x: 0, y: 0 },
+
+    add: (v1, v2, result = { x: 0, y: 0 }) => {
+        result.x = v1.x + v2.x;
+        result.y = v1.y + v2.y;
+        return result;
+    },
+    
+    addInPlace: (v1, v2) => {
+        v1.x += v2.x;
+        v1.y += v2.y;
+        return v1;
+    },
+
+    subtract: (v1, v2, result = { x: 0, y: 0 }) => {
+        result.x = v1.x - v2.x;
+        result.y = v1.y - v2.y;
+        return result;
+    },
+
+    multiply: (v, scalar, result = { x: 0, y: 0 }) => {
+        result.x = v.x * scalar;
+        result.y = v.y * scalar;
+        return result;
+    },
+
+    multiplyInPlace: (v, scalar) => {
+        v.x *= scalar;
+        v.y *= scalar;
         return v;
+    },
+
+    divide: (v, scalar, result = { x: 0, y: 0 }) => {
+        const invScalar = 1 / scalar;
+        result.x = v.x * invScalar;
+        result.y = v.y * invScalar;
+        return result;
+    },
+
+    magnitudeSquared: (v) => v.x * v.x + v.y * v.y,
+
+    magnitude: (v) => Math.sqrt(v.x * v.x + v.y * v.y),
+
+    normalize: (v, result = { x: 0, y: 0 }) => {
+        const mag = Math.sqrt(v.x * v.x + v.y * v.y);
+        if (mag > 0) {
+            const invMag = 1 / mag;
+            result.x = v.x * invMag;
+            result.y = v.y * invMag;
+        } else {
+            result.x = 0;
+            result.y = 0;
+        }
+        return result;
+    },
+
+    limit: (v, max, result = { x: 0, y: 0 }) => {
+        const magSquared = v.x * v.x + v.y * v.y;
+        if (magSquared > max * max) {
+            const scale = max / Math.sqrt(magSquared);
+            result.x = v.x * scale;
+            result.y = v.y * scale;
+            return result;
+        }
+        result.x = v.x;
+        result.y = v.y;
+        return result;
     }
 };
 
@@ -214,18 +342,20 @@ let mouseX = 0, mouseY = 0;
 let isMouseDown = false;
 
 function init() {
-    console.log('Initializing boids...');  // Debug line
     canvas = document.getElementById('boids-canvas');
     if (!canvas) {
         console.error('Could not find canvas element!');
         return;
     }
-    console.log('Canvas found, getting context...');  // Debug line
-    ctx = canvas.getContext('2d');
+    ctx = canvas.getContext('2d', { alpha: false });  // Disable alpha for better performance
     if (!ctx) {
         console.error('Could not get canvas context!');
         return;
     }
+    
+    // Enable image smoothing for better appearance
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
     
     // Make canvas fullscreen
     function resize() {
@@ -237,9 +367,16 @@ function init() {
     window.addEventListener('resize', resize);
     resize();
     
-    // Create boids
-    console.log('Creating boids...');  // Debug line
-    const numBoids = window.innerWidth < 768 ? 150 : 250; // Reduced number of boids for better performance
+    // Initialize spatial grid (cell size based on maximum perception radius)
+    const maxRadius = Math.max(
+        BOID_CONFIG.ALIGNMENT_RADIUS,
+        BOID_CONFIG.COHESION_RADIUS,
+        BOID_CONFIG.SEPARATION_RADIUS
+    );
+    spatialGrid = new SpatialGrid(canvas.width, canvas.height, BOID_CONFIG.GRID_SIZE);
+    
+    // Create boids with initial count
+    const numBoids = window.innerWidth < 768 ? 750 : 1500;
     for (let i = 0; i < numBoids; i++) {
         boids.push(new Boid(
             Math.random() * canvas.width,
@@ -253,12 +390,97 @@ function init() {
     animate();
 }
 
-function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+// Initialize spatial grid
+let spatialGrid;
+
+function animate(currentTime) {
+    // Calculate FPS
+    if (!lastTime) lastTime = currentTime;
+    const deltaTime = currentTime - lastTime;
+    lastTime = currentTime;
     
+    frameCount++;
+    
+    // Update FPS every 500ms
+    if (currentTime - lastFpsUpdate > 500) {
+        fps = Math.round((frameCount * 1000) / (currentTime - lastFpsUpdate));
+        frameCount = 0;
+        lastFpsUpdate = currentTime;
+    }
+    
+    // Clear canvas with alpha for motion blur effect
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Display FPS
+    ctx.fillStyle = '#000';
+    ctx.font = '16px Arial';
+    ctx.textAlign = 'right';
+    ctx.fillText(`${fps} FPS`, canvas.width - 10, canvas.height - 10);
+    
+    // Update spatial grid
+    spatialGrid.clear();
     for (let boid of boids) {
-        boid.update(boids, mouseX, mouseY, isMouseDown);
-        boid.draw(ctx);
+        spatialGrid.insert(boid);
+    }
+    
+    // Batch update all boids
+    for (let boid of boids) {
+        // Get only nearby boids for each behavior
+        const alignmentNeighbors = spatialGrid.getNearbyBoids(boid, BOID_CONFIG.ALIGNMENT_RADIUS);
+        const cohesionNeighbors = spatialGrid.getNearbyBoids(boid, BOID_CONFIG.COHESION_RADIUS);
+        const separationNeighbors = spatialGrid.getNearbyBoids(boid, BOID_CONFIG.SEPARATION_RADIUS);
+        
+        // Calculate forces based on local neighbors only
+        const alignment = boid.align(alignmentNeighbors);
+        const cohesion = boid.cohesion(cohesionNeighbors);
+        const separation = boid.separation(separationNeighbors);
+        
+        // Apply forces
+        Vector.multiply(alignment, BOID_CONFIG.ALIGNMENT_WEIGHT, alignment);
+        Vector.multiply(cohesion, BOID_CONFIG.COHESION_WEIGHT, cohesion);
+        Vector.multiply(separation, BOID_CONFIG.SEPARATION_WEIGHT, separation);
+        
+        // Update boid position
+        Vector.add(boid.acceleration, alignment, boid.acceleration);
+        Vector.add(boid.acceleration, cohesion, boid.acceleration);
+        Vector.add(boid.acceleration, separation, boid.acceleration);
+        
+        Vector.divide(boid.acceleration, boid.mass, boid.acceleration);
+        Vector.limit(boid.acceleration, BOID_CONFIG.MAX_FORCE, boid.acceleration);
+        
+        Vector.add(boid.velocity, boid.acceleration, boid.velocity);
+        Vector.limit(boid.velocity, BOID_CONFIG.MAX_SPEED, boid.velocity);
+        
+        // Enforce minimum speed
+        const currentSpeed = Vector.magnitude(boid.velocity);
+        if (currentSpeed < BOID_CONFIG.MIN_SPEED && currentSpeed > 0) {
+            Vector.multiply(boid.velocity, BOID_CONFIG.MIN_SPEED / currentSpeed, boid.velocity);
+        }
+        
+        Vector.add(boid.position, boid.velocity, boid.position);
+        boid.acceleration.x = 0;
+        boid.acceleration.y = 0;
+        boid.edges();
+    }
+    
+    // Batch render all boids
+    ctx.fillStyle = '#4a90e2';
+    for (let boid of boids) {
+        const angle = Math.atan2(boid.velocity.y, boid.velocity.x);
+        ctx.save();
+        ctx.translate(boid.position.x, boid.position.y);
+        ctx.rotate(angle);
+        
+        // Simpler shape for better performance
+        ctx.beginPath();
+        ctx.moveTo(6, 0);
+        ctx.lineTo(-3, 2);
+        ctx.lineTo(-3, -2);
+        ctx.closePath();
+        ctx.fill();
+        
+        ctx.restore();
     }
     
     requestAnimationFrame(animate);
@@ -266,6 +488,37 @@ function animate() {
 
 // Update configuration based on slider values
 function setupControls() {
+    // Performance mode toggle
+    const performanceToggle = document.getElementById('performanceMode');
+    performanceToggle.addEventListener('change', (e) => {
+        const isHighPerformance = e.target.checked;
+        const newCount = isHighPerformance ? 
+            (window.innerWidth < 768 ? 1000 : 10000) : 
+            (window.innerWidth < 768 ? 150 : 200);
+        
+        // Update configuration
+        BOID_CONFIG = isHighPerformance ? { ...HIGH_PERFORMANCE_CONFIG } : { ...NORMAL_CONFIG };
+        
+        // Recreate spatial grid with new cell size
+        spatialGrid = new SpatialGrid(canvas.width, canvas.height, BOID_CONFIG.GRID_SIZE);
+        
+        // Update the number of boids slider
+        const numBoidsSlider = document.getElementById('numBoids');
+        numBoidsSlider.value = newCount;
+        document.getElementById('numBoidsValue').textContent = newCount;
+        
+        // Update actual boids count and reinitialize with new settings
+        while (boids.length > newCount) {
+            boids.pop();
+        }
+        while (boids.length < newCount) {
+            boids.push(new Boid(
+                Math.random() * canvas.width,
+                Math.random() * canvas.height
+            ));
+        }
+    });
+
     // Slider event listeners
     document.getElementById('numBoids').addEventListener('input', (e) => {
         const newCount = parseInt(e.target.value);

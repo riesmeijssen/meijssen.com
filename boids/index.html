@@ -63,6 +63,64 @@
             color: var(--accent-color);
         }
 
+        .performance-toggle {
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-label {
+            font-size: 0.9em;
+            color: var(--text-color);
+        }
+
+        /* Switch styles */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .switch .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .switch .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        .switch input:checked + .slider {
+            background-color: #4a90e2;
+        }
+
+        .switch input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
         .preset-buttons {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -123,7 +181,7 @@
         <h2>Boids Controls</h2>
         <div class="control-group">
             <label for="numBoids">Number of Boids</label>
-            <input type="range" id="numBoids" min="10" max="500" value="200">
+            <input type="range" id="numBoids" min="10" max="5000" value="200">
             <span class="value-display" id="numBoidsValue">200</span>
         </div>
         
@@ -185,6 +243,16 @@
             <label for="boidMass">Boid Mass (Higher = Slower Turning)</label>
             <input type="range" id="boidMass" min="0.5" max="5" step="0.1" value="1.0">
             <span class="value-display" id="boidMassValue">1.0</span>
+        </div>
+
+        <div class="performance-toggle">
+            <label class="switch-container">
+                <span class="toggle-label">High Performance Mode (10,000 boids)</span>
+                <div class="switch">
+                    <input type="checkbox" id="performanceMode" aria-label="Toggle high performance mode">
+                    <span class="slider round"></span>
+                </div>
+            </label>
         </div>
 
         <div class="preset-buttons">
