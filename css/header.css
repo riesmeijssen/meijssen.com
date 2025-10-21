@@ -42,6 +42,15 @@
     transform: translateY(-5px);
 }
 
+.nav-brand .founders-note {
+    font-size: 0.8rem;
+    color: var(--text-color);
+    opacity: 0.7;
+    font-style: italic;
+    letter-spacing: 0.3px;
+    margin-top: 2px;
+}
+
 .nav-links {
     display: flex;
     gap: 1.5rem;
