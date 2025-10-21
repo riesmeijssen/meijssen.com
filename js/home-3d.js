@@ -73,34 +73,34 @@ class SceneManager {
         this.nose.scale.set(1, 1.5, 1); // Make it wider
         this.nose.position.z = 1; // Move forward
         
-        // Create nostrils
-        const nostrilGeometry = new THREE.SphereGeometry(0.3, 16, 16);
-        const nostrilMaterial = new THREE.MeshStandardMaterial({
-            color: 0x8b0000, // Darker color for nostrils
+        // Create eyes
+        const eyeGeometry = new THREE.SphereGeometry(0.3, 16, 16);
+        const eyeMaterial = new THREE.MeshStandardMaterial({
+            color: 0x0077ff,
             metalness: 0.1,
             roughness: 1,
         });
         
-        // Left nostril
-        this.leftNostril = new THREE.Mesh(nostrilGeometry, nostrilMaterial);
-        this.leftNostril.position.set(0.4, -0.5, 2);
-        this.leftNostril.scale.set(1, 0.5, 1);
+        // Left eye
+        this.leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+        this.leftEye.position.set(0.7, 0.9, -0.7);
+        this.leftEye.scale.set(1, 0.5, 1);
         
-        // Right nostril
-        this.rightNostril = new THREE.Mesh(nostrilGeometry, nostrilMaterial);
-        this.rightNostril.position.set(-0.4, -0.5, 2);
-        this.rightNostril.scale.set(1, 0.5, 1);
+        // Right eye
+        this.rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+        this.rightEye.position.set(-0.7, 0.9, -0.7);
+        this.rightEye.scale.set(1, 0.5, 1);
         
-        // Add nose bridge bulge
+        // Add face
         const bridgeGeometry = new THREE.SphereGeometry(0.5, 16, 16);
         const bridge = new THREE.Mesh(bridgeGeometry, noseMaterial);
-        bridge.position.set(0, 0.5, 1);
-        bridge.scale.set(1, 0.5, 1);
+        bridge.position.set(0, 0, -1);
+        bridge.scale.set(3, 4, 0.5);
         
         // Combine all parts
         this.noseGroup.add(this.nose);
-        this.noseGroup.add(this.leftNostril);
-        this.noseGroup.add(this.rightNostril);
+        this.noseGroup.add(this.leftEye);
+        this.noseGroup.add(this.rightEye);
         this.noseGroup.add(bridge);
         
         // Add to scene and store reference
