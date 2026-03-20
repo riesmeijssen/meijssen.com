@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PDF Layer Explorer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <h1>PDF Layer Explorer</h1>
+      <p>Upload a PDF and quickly hide/show layers.</p>
+    </div>
+
+    <div class="top-actions">
+      <div class="file-pick">
+        <label for="pdfInput" class="button">Choose PDF</label>
+        <input id="pdfInput" type="file" accept="application/pdf">
+        <span id="fileName" class="muted">No file selected</span>
+      </div>
+
+      <div class="menu-wrap">
+        <button id="viewMenuBtn" class="button tiny" aria-expanded="false" aria-controls="viewMenu">View Controls</button>
+        <div id="viewMenu" class="view-menu" hidden>
+          <section class="menu-card">
+            <h2>View</h2>
+            <div class="row">
+              <button id="prevPage" class="button tiny" disabled>Prev</button>
+              <span id="pageInfo" class="mono">Page 0 / 0</span>
+              <button id="nextPage" class="button tiny" disabled>Next</button>
+            </div>
+
+            <div class="row">
+              <button id="zoomOut" class="button tiny" disabled>-</button>
+              <input id="zoomRange" type="range" min="25" max="500" value="100" step="5" disabled>
+              <button id="zoomIn" class="button tiny" disabled>+</button>
+              <span id="zoomInfo" class="mono">100%</span>
+            </div>
+
+            <div class="row">
+              <button id="fitPage" class="button tiny" disabled>Fit Page</button>
+              <button id="actualSize" class="button tiny" disabled>100%</button>
+            </div>
+          </section>
+
+          <section class="menu-card">
+            <h2>Export</h2>
+            <div class="row wrap">
+              <label for="exportSize" class="small muted">Paper</label>
+              <select id="exportSize" disabled>
+                <option value="a4-portrait">A4 (standing)</option>
+                <option value="a4-landscape">A4 (lying)</option>
+                <option value="a3-portrait">A3 (standing)</option>
+                <option value="a3-landscape">A3 (lying)</option>
+              </select>
+              <label for="exportScope" class="small muted">Pages</label>
+              <select id="exportScope" disabled>
+                <option value="all">All pages</option>
+                <option value="current">Current page</option>
+              </select>
+            </div>
+            <button id="exportPdf" class="button tiny" disabled>Save Visible Layers as PDF</button>
+          </section>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="panel">
+      <section class="card layers-card">
+        <div class="layers-head">
+          <h2>Layers</h2>
+          <span id="layerCount" class="mono">0</span>
+        </div>
+
+        <input id="layerFilter" type="text" placeholder="Filter layers..." disabled>
+
+        <div class="row wrap">
+          <button id="showAllLayers" class="button tiny" disabled>Show All</button>
+          <button id="hideAllLayers" class="button tiny" disabled>Hide All</button>
+          <button id="toggleFiltered" class="button tiny" disabled>Toggle Filtered</button>
+        </div>
+
+        <div class="row wrap">
+          <button id="showSelectedLayers" class="button tiny" disabled>Show Selected</button>
+          <button id="hideSelectedLayers" class="button tiny" disabled>Hide Selected</button>
+          <button id="estimateColors" class="button tiny" disabled>Estimate Colors</button>
+        </div>
+
+        <p class="muted small">Tip: Shift+Click range select, Arrow keys navigate, H hides selected, S shows selected.</p>
+
+        <div id="layerList" class="layer-list" aria-live="polite"></div>
+      </section>
+    </aside>
+
+    <section class="viewer-shell">
+      <div id="viewerContainer" class="viewer-container" aria-label="PDF viewer">
+        <div id="emptyState" class="empty-state">
+          <h2>Load a PDF to begin</h2>
+          <p>The app supports layer visibility through Optional Content Groups (OCGs).</p>
+        </div>
+        <canvas id="pdfCanvas"></canvas>
+      </div>
+      <div id="status" class="status">Ready.</div>
+    </section>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
