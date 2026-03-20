@@ -609,12 +609,8 @@ async function exportVisiblePdf() {
       const page = await state.pdfDoc.getPage(num);
       const base = page.getViewport({ scale: 1 });
       const renderScale = Math.min(pagePixelWidth / base.width, pagePixelHeight / base.height);
-      let viewport = page.getViewport({ scale: renderScale });
-      const scaleSafetyFactor = computeExportSafetyFactor(viewport.width, viewport.height);
-
-      if (scaleSafetyFactor < 1) {
-        viewport = page.getViewport({ scale: renderScale * scaleSafetyFactor });
-      }
+      const viewport = page.getViewport({ scale: renderScale });
+      assertExportCanvasWithinLimits(viewport.width, viewport.height, num, exportDpi);
 
       const canvas = document.createElement("canvas");
       canvas.width = Math.max(1, Math.floor(viewport.width));
@@ -625,8 +621,7 @@ async function exportVisiblePdf() {
         throw new Error("Unable to create canvas context for export");
       }
 
-      const effectiveDpi = Math.max(72, Math.round(exportDpi * scaleSafetyFactor));
-      setStatus(`Exporting page ${num}/${endPage} at ~${effectiveDpi} DPI...`);
+      setStatus(`Exporting page ${num}/${endPage} at ${exportDpi} DPI...`);
 
       await page.render({
         canvasContext: renderCtx,
@@ -634,10 +629,9 @@ async function exportVisiblePdf() {
         optionalContentConfigPromise: Promise.resolve(state.layerConfig),
       }).promise;
 
-      const imgData = canvas.toDataURL("image/png");
-      const effectivePxPerMm = effectiveDpi / 25.4;
-      const drawWidthMm = viewport.width / effectivePxPerMm;
-      const drawHeightMm = viewport.height / effectivePxPerMm;
+      const imgData = canvas.toDataURL("image/jpeg", 0.92);
+      const drawWidthMm = viewport.width / pxPerMm;
+      const drawHeightMm = viewport.height / pxPerMm;
       const offsetX = (paper.widthMm - drawWidthMm) / 2;
       const offsetY = (paper.heightMm - drawHeightMm) / 2;
 
@@ -645,7 +639,7 @@ async function exportVisiblePdf() {
         pdf.addPage([paper.widthMm, paper.heightMm], paper.orientation);
       }
 
-      pdf.addImage(imgData, "PNG", offsetX, offsetY, drawWidthMm, drawHeightMm);
+      pdf.addImage(imgData, "JPEG", offsetX, offsetY, drawWidthMm, drawHeightMm, undefined, "FAST");
       exportIndex += 1;
       await microPause();
     }
@@ -662,18 +656,31 @@ async function exportVisiblePdf() {
   }
 }
 
-function computeExportSafetyFactor(width, height) {
+function assertExportCanvasWithinLimits(width, height, pageNum, selectedDpi) {
   if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
-    return 1;
+    return;
   }
 
-  const edgeScale = Math.min(EXPORT_MAX_CANVAS_EDGE / width, EXPORT_MAX_CANVAS_EDGE / height, 1);
-  const pixelCount = width * height;
+  const widthPx = Math.max(1, Math.floor(width));
+  const heightPx = Math.max(1, Math.floor(height));
+  const edgeOk = widthPx <= EXPORT_MAX_CANVAS_EDGE && heightPx <= EXPORT_MAX_CANVAS_EDGE;
+  const pixelCount = widthPx * heightPx;
+  const areaOk = pixelCount <= EXPORT_MAX_CANVAS_PIXELS;
+
+  if (edgeOk && areaOk) {
+    return;
+  }
+
+  const edgeScale = Math.min(EXPORT_MAX_CANVAS_EDGE / widthPx, EXPORT_MAX_CANVAS_EDGE / heightPx, 1);
   const areaScale = pixelCount > EXPORT_MAX_CANVAS_PIXELS
     ? Math.sqrt(EXPORT_MAX_CANVAS_PIXELS / pixelCount)
     : 1;
+  const maxScale = Math.min(edgeScale, areaScale, 1);
+  const maxDpi = Math.max(72, Math.floor(selectedDpi * maxScale));
 
-  return Math.max(0.1, Math.min(1, edgeScale, areaScale));
+  throw new Error(
+    `Selected quality is too high on page ${pageNum}. Canvas ${widthPx}x${heightPx}px exceeds browser limits (${EXPORT_MAX_CANVAS_EDGE}px max edge, ${EXPORT_MAX_CANVAS_PIXELS.toLocaleString()} max pixels). Try a lower DPI (about ${maxDpi} or less).`
+  );
 }
 
 async function getJsPdfCtor() {
