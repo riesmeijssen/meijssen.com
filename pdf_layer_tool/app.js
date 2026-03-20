@@ -54,12 +54,16 @@ const els = {
   viewMenuBtn: document.getElementById("viewMenuBtn"),
   viewMenu: document.getElementById("viewMenu"),
   exportSize: document.getElementById("exportSize"),
+  exportQuality: document.getElementById("exportQuality"),
   exportScope: document.getElementById("exportScope"),
   exportPdf: document.getElementById("exportPdf"),
 };
 
 const ctx = els.canvas.getContext("2d", { alpha: false });
 let jsPdfCtorPromise = null;
+const EXPORT_DEFAULT_DPI = 600;
+const EXPORT_MAX_CANVAS_EDGE = 16384;
+const EXPORT_MAX_CANVAS_PIXELS = 120000000;
 
 const rerenderDebounced = debounce(() => {
   renderPage(state.pageNum);
@@ -585,6 +589,7 @@ async function exportVisiblePdf() {
     const jsPDF = await getJsPdfCtor();
     const paper = parsePaperOption(els.exportSize.value);
     const scope = els.exportScope.value;
+    const exportDpi = parseExportDpi(els.exportQuality.value);
     const startPage = scope === "current" ? state.pageNum : 1;
     const endPage = scope === "current" ? state.pageNum : state.pdfDoc.numPages;
     const pdf = new jsPDF({
@@ -594,7 +599,6 @@ async function exportVisiblePdf() {
       compress: true,
     });
 
-    const exportDpi = 160;
     const pxPerMm = exportDpi / 25.4;
     const pagePixelWidth = Math.floor(paper.widthMm * pxPerMm);
     const pagePixelHeight = Math.floor(paper.heightMm * pxPerMm);
@@ -605,7 +609,12 @@ async function exportVisiblePdf() {
       const page = await state.pdfDoc.getPage(num);
       const base = page.getViewport({ scale: 1 });
       const renderScale = Math.min(pagePixelWidth / base.width, pagePixelHeight / base.height);
-      const viewport = page.getViewport({ scale: renderScale });
+      let viewport = page.getViewport({ scale: renderScale });
+      const scaleSafetyFactor = computeExportSafetyFactor(viewport.width, viewport.height);
+
+      if (scaleSafetyFactor < 1) {
+        viewport = page.getViewport({ scale: renderScale * scaleSafetyFactor });
+      }
 
       const canvas = document.createElement("canvas");
       canvas.width = Math.max(1, Math.floor(viewport.width));
@@ -616,7 +625,8 @@ async function exportVisiblePdf() {
         throw new Error("Unable to create canvas context for export");
       }
 
-      setStatus(`Exporting page ${num}/${endPage}...`);
+      const effectiveDpi = Math.max(72, Math.round(exportDpi * scaleSafetyFactor));
+      setStatus(`Exporting page ${num}/${endPage} at ~${effectiveDpi} DPI...`);
 
       await page.render({
         canvasContext: renderCtx,
@@ -624,9 +634,10 @@ async function exportVisiblePdf() {
         optionalContentConfigPromise: Promise.resolve(state.layerConfig),
       }).promise;
 
-      const imgData = canvas.toDataURL("image/jpeg", 0.92);
-      const drawWidthMm = viewport.width / pxPerMm;
-      const drawHeightMm = viewport.height / pxPerMm;
+      const imgData = canvas.toDataURL("image/png");
+      const effectivePxPerMm = effectiveDpi / 25.4;
+      const drawWidthMm = viewport.width / effectivePxPerMm;
+      const drawHeightMm = viewport.height / effectivePxPerMm;
       const offsetX = (paper.widthMm - drawWidthMm) / 2;
       const offsetY = (paper.heightMm - drawHeightMm) / 2;
 
@@ -634,7 +645,7 @@ async function exportVisiblePdf() {
         pdf.addPage([paper.widthMm, paper.heightMm], paper.orientation);
       }
 
-      pdf.addImage(imgData, "JPEG", offsetX, offsetY, drawWidthMm, drawHeightMm, undefined, "FAST");
+      pdf.addImage(imgData, "PNG", offsetX, offsetY, drawWidthMm, drawHeightMm);
       exportIndex += 1;
       await microPause();
     }
@@ -649,6 +660,20 @@ async function exportVisiblePdf() {
     state.isExporting = false;
     els.exportPdf.disabled = false;
   }
+}
+
+function computeExportSafetyFactor(width, height) {
+  if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
+    return 1;
+  }
+
+  const edgeScale = Math.min(EXPORT_MAX_CANVAS_EDGE / width, EXPORT_MAX_CANVAS_EDGE / height, 1);
+  const pixelCount = width * height;
+  const areaScale = pixelCount > EXPORT_MAX_CANVAS_PIXELS
+    ? Math.sqrt(EXPORT_MAX_CANVAS_PIXELS / pixelCount)
+    : 1;
+
+  return Math.max(0.1, Math.min(1, edgeScale, areaScale));
 }
 
 async function getJsPdfCtor() {
@@ -686,6 +711,15 @@ function parsePaperOption(value) {
     default:
       return { widthMm: 210, heightMm: 297, orientation: "portrait" };
   }
+}
+
+function parseExportDpi(value) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) {
+    return EXPORT_DEFAULT_DPI;
+  }
+
+  return clamp(Math.round(parsed), 150, 1200);
 }
 
 function updateSelectedButtons() {
@@ -910,6 +944,7 @@ function enableControls(enabled) {
     els.toggleFiltered,
     els.estimateColors,
     els.exportSize,
+    els.exportQuality,
     els.exportScope,
     els.exportPdf,
   ].forEach((el) => {
