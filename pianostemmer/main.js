@@ -83,6 +83,9 @@ class PianoTuner {
 
     async start() {
         try {
+            // Validate browser context before touching media APIs
+            this.runPreflightChecks();
+
             // Initialize Web Worker
             this.initializeWorker();
 
@@ -140,9 +143,72 @@ class PianoTuner {
 
         } catch (error) {
             console.error('Error starting tuner:', error);
-            alert('Error: Could not access microphone. Please check permissions.');
+            this.handleStartError(error);
             this.stop();
         }
+    }
+
+    runPreflightChecks() {
+        if (!window.isSecureContext) {
+            const err = new Error('Microphone requires a secure context (HTTPS).');
+            err.name = 'InsecureContextError';
+            throw err;
+        }
+
+        if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
+            const err = new Error('getUserMedia is unavailable in this browser/context.');
+            err.name = 'MediaDevicesUnavailableError';
+            throw err;
+        }
+    }
+
+    handleStartError(error) {
+        const reason = this.getReadableStartError(error);
+        this.statusText.textContent = reason;
+        alert(`Error starting tuner:\n\n${reason}`);
+    }
+
+    getReadableStartError(error) {
+        const name = error && error.name ? error.name : 'UnknownError';
+        const message = error && error.message ? error.message : '';
+
+        if (name === 'InsecureContextError') {
+            return 'This page is not in a secure context. Use HTTPS with a valid certificate.';
+        }
+
+        if (name === 'MediaDevicesUnavailableError') {
+            return 'Browser does not expose microphone APIs here. Check HTTPS, browser support, or restrictive site settings.';
+        }
+
+        if (name === 'NotAllowedError' || name === 'SecurityError') {
+            return 'Microphone access was blocked. If permissions are already allowed, your host may send a Permissions-Policy header that disables microphone, or the page is inside an iframe without allow="microphone".';
+        }
+
+        if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
+            return 'No microphone input device was found.';
+        }
+
+        if (name === 'NotReadableError' || name === 'TrackStartError') {
+            return 'Microphone is busy or unavailable (possibly in use by another app/tab).';
+        }
+
+        if (name === 'OverconstrainedError' || name === 'ConstraintNotSatisfiedError') {
+            return 'Requested audio constraints are not supported on this device.';
+        }
+
+        if (name === 'AbortError') {
+            return 'Microphone initialization was interrupted. Please retry.';
+        }
+
+        if (name === 'WorkerInitError') {
+            return 'Audio worker failed to load. Ensure tuner-worker.js is deployed at the same folder and not blocked by CSP/headers.';
+        }
+
+        if (name === 'TypeError' && message.includes('Failed to construct')) {
+            return 'Worker or audio API initialization failed. Check browser compatibility and deployment paths.';
+        }
+
+        return `Unexpected startup error (${name}). ${message}`.trim();
     }
 
     stop() {
@@ -179,7 +245,19 @@ class PianoTuner {
 
     initializeWorker() {
         if (!this.worker) {
-            this.worker = new Worker('tuner-worker.js');
+            try {
+                const workerUrl = new URL('tuner-worker.js', window.location.href);
+                this.worker = new Worker(workerUrl);
+            } catch (error) {
+                const err = new Error(error && error.message ? error.message : 'Failed to create worker');
+                err.name = 'WorkerInitError';
+                throw err;
+            }
+
+            this.worker.onerror = (event) => {
+                console.error('Worker runtime error:', event.message || event);
+            };
+
             this.worker.onmessage = (e) => this.handleWorkerMessage(e);
         }
     }
