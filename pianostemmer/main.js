@@ -109,7 +109,9 @@ class PianoTuner {
             });
 
             // Create audio nodes
-            const source = this.audioContext.createMediaStreamAudioSource(this.mediaStream);
+            const source = this.audioContext.createMediaStreamSource
+                ? this.audioContext.createMediaStreamSource(this.mediaStream)
+                : this.audioContext.createMediaStreamAudioSource(this.mediaStream);
             this.analyser = this.audioContext.createAnalyser();
             this.analyser.fftSize = 4096;
             this.analyser.smoothingTimeConstant = 0.85;
