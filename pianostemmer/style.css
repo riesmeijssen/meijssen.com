@@ -1,0 +1,552 @@
+/* Retro Windows 95/98 Piano Tuner - Funky Colors Edition */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'MS Sans Serif', Arial, sans-serif;
+    background-color: #c0c0c0;
+    background-image: 
+        repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 2px,
+            rgba(255, 0, 255, 0.02) 2px,
+            rgba(255, 0, 255, 0.02) 4px
+        );
+    color: #000;
+    line-height: 1.4;
+    min-height: 100vh;
+    padding: 10px;
+}
+
+.container {
+    max-width: 700px;
+    margin: 0 auto;
+    background-color: #c0c0c0;
+    border: 2px solid;
+    border-color: #dfdfdf #808080 #808080 #dfdfdf;
+    box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #000;
+    overflow: hidden;
+}
+
+/* Header */
+header {
+    background: linear-gradient(90deg, #ff00ff 0%, #00ffff 25%, #ffff00 50%, #ff00ff 75%, #00ffff 100%);
+    padding: 2px;
+    box-shadow: inset 0 1px 0 #fff, inset 0 -2px 0 #000;
+}
+
+header::before {
+    content: '';
+    display: block;
+    height: 20px;
+    background: linear-gradient(90deg, #ff00ff 0%, #00ffff 25%, #ffff00 50%, #ff00ff 75%, #00ffff 100%);
+}
+
+header h1 {
+    font-size: 1.1em;
+    margin: 2px;
+    color: #ffffff;
+    font-weight: bold;
+    letter-spacing: 0;
+    text-shadow: 2px 2px 0 #000, -1px -1px 0 #00ffff, 2px -2px 0 #ff00ff;
+}
+
+.subtitle {
+    color: #000;
+    font-size: 0.85em;
+    margin: 2px;
+    font-weight: bold;
+    text-shadow: 1px 1px 0 #ffff00;
+}
+
+/* Main Content */
+main {
+    padding: 10px;
+}
+
+/* Sections */
+section {
+    margin-bottom: 10px;
+    padding: 6px;
+    background-color: #c0c0c0;
+    border: 2px solid;
+    border-color: #dfdfdf #808080 #808080 #dfdfdf;
+}
+
+.section-title {
+    background: linear-gradient(90deg, #ff0080 0%, #ff6600 50%, #00ff80 100%);
+    color: #000;
+    padding: 2px 4px;
+    font-weight: bold;
+    font-size: 0.9em;
+    margin-bottom: 8px;
+    text-shadow: 1px 1px 0 #ffff00;
+}
+
+/* Controls Section */
+.controls-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.btn {
+    padding: 4px 12px;
+    font-size: 0.85em;
+    border: 2px solid;
+    border-color: #dfdfdf #808080 #808080 #dfdfdf;
+    background-color: #c0c0c0;
+    color: #000;
+    font-family: 'MS Sans Serif', Arial, sans-serif;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    min-width: 80px;
+    transition: all 0.05s ease;
+}
+
+.btn:active {
+    border-color: #808080 #dfdfdf #dfdfdf #808080;
+    box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #000;
+}
+
+.btn:disabled {
+    color: #818081;
+    text-shadow: 1px 1px 0 #ffffff;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    min-width: 100px;
+}
+
+.btn-secondary {
+    min-width: 100px;
+}
+
+/* Control Groups */
+.reference-control,
+.stretch-control {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid #dfdfdf;
+}
+
+.reference-control label,
+.stretch-control label {
+    font-size: 0.9em;
+    color: #000;
+    font-weight: normal;
+}
+
+.reference-control label span,
+.stretch-control label span {
+    font-weight: bold;
+    margin-left: 4px;
+}
+
+input[type="range"] {
+    width: 100%;
+    height: 4px;
+    border: 2px solid;
+    border-color: #808080 #dfdfdf #dfdfdf #808080;
+    background: #c0c0c0;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid;
+    border-color: #dfdfdf #808080 #808080 #dfdfdf;
+    background-color: #c0c0c0;
+    cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border: 2px solid;
+    border-color: #dfdfdf #808080 #808080 #dfdfdf;
+    background-color: #c0c0c0;
+    cursor: pointer;
+}
+
+/* Stretch Tuning Visualization */
+.stretch-info {
+    margin-top: 8px;
+}
+
+.stretch-indicator {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 6px;
+    border: 1px solid #dfdfdf;
+}
+
+.stretch-scale {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7em;
+    font-weight: bold;
+    color: #000;
+}
+
+.scale-label {
+    flex: 1;
+    text-align: center;
+}
+
+.stretch-gradient {
+    position: relative;
+    height: 24px;
+    background: linear-gradient(90deg, 
+        #0080ff 0%, 
+        #00ff00 33%, 
+        #ffff00 50%, 
+        #ff8800 66%, 
+        #ff0000 100%
+    );
+    border: 2px inset #808080;
+    border-color: #dfdfdf #808080 #808080 #dfdfdf;
+    overflow: hidden;
+}
+
+.stretch-pointer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: #000;
+    box-shadow: 0 0 0 2px #fff, 0 0 0 3px #000;
+    transition: left 0.15s ease;
+}
+
+.stretch-description {
+    text-align: center;
+    font-size: 0.75em;
+    color: #000;
+    margin-top: 4px;
+}
+
+.stretch-description small {
+    display: block;
+    font-weight: bold;
+    color: #ff0080;
+}
+
+/* Display Section */
+.display-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.frequency-display,
+.note-display,
+.cents-display {
+    background-color: #c0c0c0;
+    padding: 6px;
+    border: 2px solid;
+    border-color: #808080 #dfdfdf #dfdfdf #808080;
+    text-align: center;
+}
+
+.label {
+    font-size: 0.85em;
+    color: #000;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    font-weight: bold;
+}
+
+.value {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #000;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 2px;
+    padding: 4px;
+    background-color: #c0c0c0;
+    border: 1px solid;
+    border-color: #808080 #dfdfdf #dfdfdf #808080;
+}
+
+/* Cents Meter */
+.cents-meter {
+    margin-top: 8px;
+}
+
+.meter-background {
+    position: relative;
+    height: 40px;
+    background-color: #c0c0c0;
+    border: 2px solid;
+    border-color: #808080 #dfdfdf #dfdfdf #808080;
+    overflow: hidden;
+}
+
+.meter-scale {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+    padding: 0 4px;
+    font-size: 0.75em;
+    color: #000;
+}
+
+.meter-scale span {
+    flex: 1;
+    text-align: center;
+    font-weight: bold;
+}
+
+.meter-needle {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 2px;
+    height: 100%;
+    background: #000080;
+    transform: translateX(-50%);
+    transition: left 0.1s ease;
+}
+
+/* Status Section */
+.status-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.status-light {
+    width: 10px;
+    height: 10px;
+    border: 1px solid;
+    border-color: #dfdfdf #808080 #808080 #dfdfdf;
+    display: inline-block;
+    transition: all 0.2s ease;
+}
+
+.status-light.active {
+    background: #00ff00;
+}
+
+.status-light.inactive {
+    background: #c0c0c0;
+}
+
+.signal-strength {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9em;
+}
+
+.signal-bar {
+    flex: 1;
+    height: 16px;
+    background: #c0c0c0;
+    border: 2px solid;
+    border-color: #808080 #dfdfdf #dfdfdf #808080;
+    overflow: hidden;
+}
+
+.signal-fill {
+    height: 100%;
+    width: 0%;
+    background: #00ff00;
+    transition: width 0.1s ease;
+}
+
+/* Tuning Progress Section */
+.tuning-progress-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.piano-tracker {
+    background-color: #c0c0c0;
+    padding: 6px;
+    border: 2px solid;
+    border-color: #808080 #dfdfdf #dfdfdf #808080;
+}
+
+.piano-notes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(54px, 1fr));
+    gap: 6px;
+    padding: 4px;
+}
+
+.note-tracker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1;
+    border: 2px solid;
+    border-color: #dfdfdf #808080 #808080 #dfdfdf;
+    background-color: #c0c0c0;
+    font-size: 0.7em;
+    font-weight: bold;
+    cursor: default;
+    position: relative;
+    transition: all 0.2s ease;
+    min-width: 50px;
+}
+
+.note-tracker span {
+    text-align: center;
+    color: #000;
+    z-index: 2;
+    font-weight: bold;
+}
+
+.note-tracker.not-started {
+    background-color: #c0c0c0;
+    color: #808080;
+}
+
+.note-tracker.tuned {
+    background: linear-gradient(135deg, #00ff00, #00cc00);
+    color: #000;
+    box-shadow: inset 0 0 4px #ffff00, 0 0 8px #00ff00;
+}
+
+.note-tracker.close {
+    background: linear-gradient(135deg, #ffff00, #ffcc00);
+    color: #000;
+    box-shadow: inset 0 0 4px #ff8800;
+}
+
+.note-tracker.off {
+    background: linear-gradient(135deg, #ff6600, #ff4400);
+    color: #fff;
+    box-shadow: inset 0 0 4px #000;
+}
+
+.note-tracker.very-off {
+    background: linear-gradient(135deg, #cc0000, #990000);
+    color: #fff;
+    box-shadow: inset 0 0 4px #ff00ff, 0 0 8px #cc0000;
+}
+
+.legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 6px;
+    font-size: 0.8em;
+    justify-content: center;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: bold;
+    color: #000;
+}
+
+.legend-dot {
+    width: 16px;
+    height: 16px;
+    border: 1px solid #000;
+    display: inline-block;
+}
+
+/* Info Section */
+.info-section h3 {
+    color: #000;
+    margin-bottom: 6px;
+    font-size: 0.95em;
+    font-weight: bold;
+    border-bottom: 1px solid #dfdfdf;
+    padding-bottom: 4px;
+}
+
+.info-section ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.info-section li {
+    padding: 3px 0;
+    padding-left: 18px;
+    position: relative;
+    color: #000;
+    font-size: 0.85em;
+}
+
+.info-section li:before {
+    content: "•";
+    position: absolute;
+    left: 6px;
+    color: #000;
+    font-weight: bold;
+}
+
+/* Footer */
+footer {
+    background-color: #c0c0c0;
+    padding: 6px;
+    text-align: center;
+    color: #000;
+    font-size: 0.8em;
+    border-top: 2px solid;
+    border-color: #dfdfdf #808080 #808080 #dfdfdf;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .container {
+        margin: 0;
+        border: none;
+    }
+
+    main {
+        padding: 8px;
+    }
+
+    header h1 {
+        font-size: 1em;
+    }
+
+    .value {
+        font-size: 1.4em;
+    }
+
+    .display-section {
+        flex-direction: column;
+    }
+
+    .status-section {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .signal-strength {
+        width: 100%;
+    }
+
+    .signal-bar {
+        flex: 1;
+        max-width: none;
+    }
+}
