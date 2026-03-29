@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piano Tuner - High Precision</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎹 Piano Tuner</h1>
+            <p class="subtitle">High-Precision Tuning Tool</p>
+        </header>
+
+        <main>
+            <!-- Control Section -->
+            <section class="controls-section">
+                <div class="section-title">Controls</div>
+                <button id="startBtn" class="btn btn-primary">Start Tuner</button>
+                <button id="stopBtn" class="btn btn-secondary" disabled>Stop Tuner</button>
+                
+                <div class="reference-control">
+                    <label for="refFreq">Reference Frequency (Hz): <span id="refFreqDisplay">440</span></label>
+                    <input type="range" id="refFreq" min="430" max="450" step="0.1" value="440">
+                </div>
+                
+                <div class="stretch-control">
+                    <label for="stretchFactor">Stretched Tuning Factor: <span id="stretchFactorDisplay">0.0001</span></label>
+                    <input type="range" id="stretchFactor" min="0" max="0.0005" step="0.00001" value="0.0001">
+                    <div class="stretch-info">
+                        <div class="stretch-indicator">
+                            <div class="stretch-scale">
+                                <span class="scale-label">Conservative</span>
+                                <span class="scale-label">Normal Range</span>
+                                <span class="scale-label">Aggressive</span>
+                            </div>
+                            <div class="stretch-gradient">
+                                <div class="stretch-pointer" id="stretchPointer"></div>
+                            </div>
+                        </div>
+                        <div class="stretch-description">
+                            <small id="stretchDesc">Minimal inharmonicity compensation</small>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Display Section -->
+            <section class="display-section">
+                <div class="section-title">Detection Results</div>
+                <div class="frequency-display">
+                    <div class="label">Detected Frequency</div>
+                    <div class="value" id="frequency">-- Hz</div>
+                </div>
+
+                <div class="note-display">
+                    <div class="label">Closest Note</div>
+                    <div class="value" id="noteName">--</div>
+                </div>
+
+                <div class="cents-display">
+                    <div class="label">Cents Offset</div>
+                    <div class="value" id="centsValue">0.00</div>
+                    <div class="cents-meter">
+                        <div class="meter-background">
+                            <div class="meter-scale">
+                                <span>-50</span>
+                                <span>-25</span>
+                                <span>0</span>
+                                <span>+25</span>
+                                <span>+50</span>
+                            </div>
+                            <div class="meter-needle" id="meterNeedle"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Status Section -->
+            <section class="status-section">
+                <div class="section-title">Status</div>
+                <div class="status-indicator">
+                    <span id="statusLight" class="status-light inactive"></span>
+                    <span id="statusText">Not running</span>
+                </div>
+                <div class="signal-strength">
+                    <span>Signal Strength: <span id="signalStrength">-</span>%</span>
+                    <div class="signal-bar">
+                        <div class="signal-fill" id="signalFill"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tuning Progress Section -->
+            <section class="tuning-progress-section">
+                <div class="section-title">Tuning Progress</div>
+                <div class="piano-tracker">
+                    <div id="pianoNotes" class="piano-notes">
+                        <!-- Generated dynamically by JavaScript -->
+                    </div>
+                </div>
+                <div class="legend">
+                    <div class="legend-item"><span class="legend-dot" style="background: #00ff00;"></span> Tuned (within ±5 cents)</div>
+                    <div class="legend-item"><span class="legend-dot" style="background: #ffff00;"></span> Close (±5 to ±15 cents)</div>
+                    <div class="legend-item"><span class="legend-dot" style="background: #ff6600;"></span> Off (±15 to ±30 cents)</div>
+                    <div class="legend-item"><span class="legend-dot" style="background: #cc0000;"></span> Very Off (>±30 cents)</div>
+                </div>
+            </section>
+
+            <!-- Info Section -->
+            <section class="info-section">
+                <div class="section-title">How to Use</div>
+                <ul>
+                    <li>Click "Start Tuner" to begin</li>
+                    <li>Play a note on your piano</li>
+                    <li>Adjust the center reference frequency if needed</li>
+                    <li>Use the cents offset meter to fine-tune each note</li>
+                    <li>Track your progress in the tuning grid</li>
+                </ul>
+            </section>
+        </main>
+
+        <footer>
+            <p>Piano Tuner v1.0 | Autocorrelation-based pitch detection</p>
+        </footer>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
