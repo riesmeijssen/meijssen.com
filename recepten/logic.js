@@ -1,5 +1,5 @@
-const apiKey = process.env.GOOGLE_API_KEY;
-const spreadsheetId = process.env.GOOGLE_RECEPTEN_SPREADSHEET_ID;
+const apiKey = 'AIzaSyBRV9mXt9ohHWaZyYhiv5OWwww-NwUGXBU';
+const spreadsheetId = '1Fkb7RvspPyu2-RSZGN7yEAv47NGCPTf94Ab3-3e4J6U';
 const range = 'form_reactions!A1:H200';
 
 const recipe_types = ["Ontbijt", "Lunch", "Tussendoortje", "Avondeten", "Toetje"]
