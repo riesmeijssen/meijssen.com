@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Rangschikken</title>
+  <style>
+    .item {
+      padding: 10px;
+      border: 1px solid #ccc;
+      margin: 5px;
+      background: #f9f9f9;
+      cursor: grab;
+    }
+    img {
+      height: 80px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <h1>Sleep om volgorde te bepalen</h1>
+
+  <div id="list"></div>
+
+  <p>Naam: <input id="name" /></p>
+
+  <button onclick="submit()">Opslaan</button>
+
+  <script>
+    let items = [];
+
+    async function load() {
+      const likes = JSON.parse(localStorage.getItem("likes") || "[]");
+      if (likes.length === 0) {
+        window.location.href = "/gallery.html";
+        return;
+      }
+
+      const res = await fetch("/api/paintings");
+      const data = await res.json();
+
+      items = likes.map(id => data.find(p => p.id == id));
+
+      render();
+    }
+
+    function render() {
+      const container = document.getElementById("list");
+      container.innerHTML = "";
+
+      items.forEach((item, index) => {
+        const div = document.createElement("div");
+        div.className = "item";
+        div.draggable = true;
+
+        div.innerHTML = `
+          <strong>#${index + 1}</strong>
+          ${item.image}
+        `;
+
+        div.addEventListener("dragstart", () => {
+          div.classList.add("dragging");
+        });
+
+        div.addEventListener("dragend", () => {
+          div.classList.remove("dragging");
+        });
+
+        container.appendChild(div);
+      });
+
+      container.addEventListener("dragover", e => {
+        e.preventDefault();
+        const after = getDragAfterElement(container, e.clientY);
+        const dragging = document.querySelector(".dragging");
+
+        if (!after) {
+          container.appendChild(dragging);
+        } else {
+          container.insertBefore(dragging, after);
+        }
+      });
+
+      updateOrder();
+    }
+
+    function getDragAfterElement(container, y) {
+      const elements = [...container.querySelectorAll(".item:not(.dragging)")];
+
+      return elements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+          return { offset: offset, element: child };
+        } else {
+          return closest;
+        }
+      }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    function updateOrder() {
+      const divs = document.querySelectorAll(".item");
+      const newOrder = [];
+      divs.forEach(div => {
+        const img = div.querySelector("img").getAttribute("src");
+        const item = items.find(i => i.image === img);
+        newOrder.push(item);
+      });
+      items = newOrder;
+    }
+
+    async function submit() {
+      const name = document.getElementById("name").value;
+
+      if (!name) {
+        alert("Vul je naam in");
+        return;
+      }
+
+      updateOrder();
+
+      const ranking = items.map(i => i.id);
+      const likes = JSON.parse(localStorage.getItem("likes") || "[]");
+
+      await fetch("/api/responses", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ name, likes, ranking })
+      });
+
+      localStorage.clear();
+      window.location.href = "/done.html";
+    }
+
+    load();
+  </script>
+</body>
+</html>

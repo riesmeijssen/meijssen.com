@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Schilderijen - Login</title>
+</head>
+<body>
+  <h1>Welkom</h1>
+  <p>Voer het wachtwoord in:</p>
+
+  <input type="password" id="password" />
+  <button onclick="login()">Login</button>
+
+  <p id="error" style="color:red;"></p>
+
+  <script>
+    async function login() {
+      const password = document.getElementById("password").value;
+
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ password })
+      });
+
+      if (res.ok) {
+        window.location.href = "/gallery.html";
+      } else {
+        document.getElementById("error").innerText = "Fout wachtwoord";
+      }
+    }
+  </script>
+</body>
+</html>

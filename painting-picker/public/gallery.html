@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Schilderijen kiezen</title>
+  <style>
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, 150px);
+      gap: 10px;
+    }
+    .item {
+      border: 1px solid #ccc;
+      padding: 5px;
+      text-align: center;
+    }
+    img {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h1>Kies je favoriete schilderijen (max 10)</h1>
+
+  <div id="gallery" class="grid"></div>
+
+  <button onclick="next()">Volgende</button>
+
+  <script>
+    let selected = [];
+
+    async function load() {
+      const res = await fetch("/api/paintings");
+      if (!res.ok) {
+        window.location.href = "/";
+        return;
+      }
+
+      const data = await res.json();
+      const container = document.getElementById("gallery");
+
+      data.forEach(p => {
+        const div = document.createElement("div");
+        div.className = "item";
+
+        div.innerHTML = `
+          <img src="${         <div>${p.likes} likes</div>
+          <input type="checkbox" value="${p.id}" />
+        `;
+
+        const checkbox = div.querySelector("input");
+
+        checkbox.addEventListener("change", () => {
+          if (checkbox.checked) {
+            if (selected.length >= 10) {
+              checkbox.checked = false;
+              alert("Max 10!");
+              return;
+            }
+            selected.push(p.id);
+          } else {
+            selected = selected.filter(id => id !== p.id);
+          }
+        });
+
+        container.appendChild(div);
+      });
+    }
+
+    function next() {
+      if (selected.length === 0) {
+        alert("Kies minimaal 1 schilderij");
+        return;
+      }
+
+      localStorage.setItem("likes", JSON.stringify(selected));
+      window.location.href = "/ranking.html";
+    }
+
+    load();
+  </script>
+</body>
+</html>
